@@ -1,0 +1,163 @@
+import type { AppProps } from "next/app";
+import Head from "next/head";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from 'react-i18next';
+
+import { HeroUIProvider } from "@heroui/system";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { useRouter } from "next/router";
+import QueryProvider from '@/providers/queryProvider'
+import PrivyProviders from '@/providers/privyProvider'
+import { BalanceProvider } from '@/providers/balanceProvider'
+import { Toaster } from 'sonner';
+import NProgress from 'nprogress';
+import { WagmiProvider } from 'wagmi';
+import { config } from '@/wagmiConfig';
+
+import { fontSans } from "@/config/fonts";
+import { Navbar } from "@/components/navbar";
+import Footer from "@/components/footer";
+import "@/styles/globals.css";
+import "nprogress/nprogress.css";
+import "@/i18n"
+import { HeadWeb } from "@/layouts/head";
+export default function App({ Component, pageProps }: AppProps) {
+	const router = useRouter();
+	const hideFooter = router.pathname === "/token/[addr]";
+	const [isMounted, setIsMounted] = useState(false);
+	const { i18n } = useTranslation();
+	const progressRef = useRef<{ timer: ReturnType<typeof setTimeout> | null; started: boolean }>({
+		timer: null,
+		started: false,
+	});
+
+	useEffect(() => {
+		setIsMounted(true);
+
+		// 全局处理未捕获的 Promise rejection
+		const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+			console.error('Unhandled promise rejection:', event.reason);
+			// 阻止 Next.js 默认的错误覆盖层
+			event.preventDefault();
+		};
+
+		window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+		return () => {
+			window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+		};
+	}, []);
+
+	// 配置nprogress
+	useEffect(() => {
+		NProgress.configure({
+			showSpinner: false, // 隐藏加载圆圈
+			minimum: 0.3, // 最小进度
+			easing: 'ease', // 动画效果
+			speed: 200 // 动画速度
+		});
+	}, []);
+
+	// 监听路由变化
+	useEffect(() => {
+		const handleStart = () => {
+			if (progressRef.current.timer) {
+				clearTimeout(progressRef.current.timer);
+			}
+			progressRef.current.started = false;
+			progressRef.current.timer = setTimeout(() => {
+				progressRef.current.started = true;
+				NProgress.start();
+			}, 150);
+		};
+
+		const handleStop = () => {
+			if (progressRef.current.timer) {
+				clearTimeout(progressRef.current.timer);
+				progressRef.current.timer = null;
+			}
+			if (progressRef.current.started) {
+				NProgress.done();
+			}
+		};
+
+		router.events.on('routeChangeStart', handleStart);
+		router.events.on('routeChangeComplete', handleStop);
+		router.events.on('routeChangeError', handleStop);
+
+		return () => {
+			router.events.off('routeChangeStart', handleStart);
+			router.events.off('routeChangeComplete', handleStop);
+			router.events.off('routeChangeError', handleStop);
+		};
+	}, [router]);
+
+	// 预加载关键页面
+	useEffect(() => {
+		// 延迟预加载，避免影响初始页面加载性能
+		const timer = setTimeout(async () => {
+			try {
+				// 预加载关键页面
+				await Promise.all([
+					router.prefetch('/'),
+				]);
+			} catch (error) {
+			}
+		}, 1000); // 1秒后开始预加载
+
+		return () => clearTimeout(timer);
+	}, [router]);
+
+	return (
+		<>
+			<Head>
+				{/* 预加载关键图片 */}
+				<link rel="preload" href="/images/loading.gif" as="image" />
+			</Head>
+			<HeadWeb />
+			{
+				isMounted ? (
+					<WagmiProvider config={config}>
+						<PrivyProviders>
+							<QueryProvider>
+								<BalanceProvider>
+									<HeroUIProvider navigate={router.push}>
+										<Toaster
+											richColors
+											position="top-center"
+											toastOptions={{
+												classNames: {
+													success: 'toast-success',
+													error: 'toast-error',
+													loading: 'toast-loading',
+												}
+											}}
+										/>
+										<NextThemesProvider attribute="class" defaultTheme="dark">
+											<div className="relative flex flex-col h-screen bg-[#0D0F13] page-transition">
+												<Navbar />
+												<main className="mx-auto w-full flex-grow pt-[56px] lg:pt-[64px] pb-[52px] lg:pb-0">
+													<Component {...pageProps} />
+												</main>
+												{!hideFooter && <Footer />}
+											</div>
+										</NextThemesProvider>
+									</HeroUIProvider>
+								</BalanceProvider>
+							</QueryProvider>
+						</PrivyProviders>
+					</WagmiProvider>
+				) : (
+					<div className="flex items-center justify-center h-screen w-screen bg-[#0D0F13]">
+						<img src="/images/loading.gif" alt="Loading" className="w-[60px] h-[60px]" />
+					</div>
+				)
+			}
+
+		</>
+	);
+}
+
+export const fonts = {
+	sans: fontSans.style.fontFamily
+};
