@@ -12,7 +12,7 @@ export default function PrivyProviders({ children }: { children: React.ReactNode
 					accentColor: "#EFC462",
 					theme: "#0D0F13",
 					"showWalletLoginFirst": true,
-					logo: "https://newgame.mypinata.cloud/ipfs/bafkreieh5d3r77jblc6hqycuhwaa6b3blefrfi6soqwwlhufy6w5sea2jm",
+					logo: "",
 					walletChainType: "ethereum-only",
 					"walletList": [
 						"binance",

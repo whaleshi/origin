@@ -2,7 +2,7 @@ import MyAvatar from "@/components/avatar";
 import { Button } from "@heroui/react";
 
 export default function MiningRewards() {
-	return <div>
+	return <div className="w-full">
 		<div className="text-[18px] text-[#fff] font-semibold">挖矿奖励</div>
 		<div className="mt-[12px] border-[#25262A] border-[1px] border-dashed p-[12px] rounded-[8px]">
 			<div className="flex items-center justify-between text-[13px] text-[#868789]">
@@ -19,7 +19,7 @@ export default function MiningRewards() {
 					0.029411
 				</div>
 			</div>
-			<Button radius="full" fullWidth className="h-[44px] mt-[16px] bg-[#0D0F13] text-[15px] text-[#FD7438] border-[1px] border-[#FD7438]">领取</Button>
+			<Button radius="full" fullWidth className="h-[44px] mt-[16px] bg-[transparent] text-[15px] text-[#FD7438] border-[1px] border-[#FD7438]">领取</Button>
 		</div>
 	</div>;
 }

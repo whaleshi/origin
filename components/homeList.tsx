@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { SearchIcon } from './icons';
 import TokenItem from './tokenItem';
+import router from 'next/router';
 
 
 export default function HomeList() {
@@ -23,7 +24,7 @@ export default function HomeList() {
 						</div>
 					))}
 				</div>
-				<div className='h-[28px] bg-[#191B1F] rounded-full text-[13px] text-[#5A575E] flex items-center gap-[4px] px-[12px]'><SearchIcon />搜索</div>
+				<div className='h-[28px] bg-[#191B1F] rounded-full text-[13px] text-[#5A575E] flex items-center gap-[4px] px-[12px]' onClick={() => { router.push("/search"); }}><SearchIcon />搜索</div>
 			</div>
 			<div className='w-full px-[14px]'>
 				{

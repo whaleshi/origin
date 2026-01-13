@@ -9,7 +9,7 @@ export default function MeList() {
 	const tabs = ['新创建', '已发射', '矿池'];
 
 	return <div>
-		<div className='block md:hidden'>
+		<div className=''>
 			<div className="h-[52px] flex items-center justify-between">
 				<div className="text-[16px] flex gap-[12px]">
 					{tabs.map((tab) => (

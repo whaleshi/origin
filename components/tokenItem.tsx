@@ -4,10 +4,16 @@ import router from "next/router";
 
 interface TokenItemProps {
 	type: number;
+	bg?: string;
 }
 
-export default function TokenItem({ type }: TokenItemProps) {
-	return <div className='w-full h-[64px] rounded-[8px] bg-[#191B1F] p-[12px] flex items-center cursor-pointer' onClick={() => router.push("/token/1")}>
+export default function TokenItem({ type, bg }: TokenItemProps) {
+	return (
+		<div
+			className="w-full h-[64px] rounded-[8px] p-[12px] flex items-center cursor-pointer"
+			style={{ backgroundColor: bg || "#191B1F" }}
+			onClick={() => router.push("/token/1")}
+		>
 		<div className={`w-[46px] h-[46px] border-[1.5px] ${type === 3 ? 'border-[#FD7438]' : 'border-transparent'} rounded-full flex items-center justify-center relative`}>
 			<MyAvatar src={"/images/test.png"} alt="icon" className="w-[40px] h-[40px] bg-[transparent]" />
 			{type === 3 && <ItemIcon className="absolute -bottom-[1px] -right-[1px]" />}
@@ -40,5 +46,6 @@ export default function TokenItem({ type }: TokenItemProps) {
 				</div>
 			}
 		</div>
-	</div>
+		</div>
+	);
 }

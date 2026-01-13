@@ -34,11 +34,21 @@ export default function SwapAbout() {
 			const last = data[data.length - 1];
 			return { idx: last[0], val: last[1] };
 		};
+		const getTrendColor = () => {
+			if (data.length < 2) return { line: "#FF4848", areaTop: "rgba(255, 72, 72, 0.10)", point: "#FF4848" };
+			const prev = data[data.length - 2][1];
+			const curr = data[data.length - 1][1];
+			if (curr >= prev) {
+				return { line: "#17C964", areaTop: "rgba(23, 201, 100, 0.10)", point: "#17C964" };
+			}
+			return { line: "#FF4848", areaTop: "rgba(255, 72, 72, 0.10)", point: "#FF4848" };
+		};
 		const getMaxX = () => Math.max(1, getLast().idx);
 
 		// 初始配置：折线 + 呼吸点
 		const UPDATE_MS = 500;
 		const INIT_MS = 800; // 初次绘制线的动画时长
+		const trend = getTrendColor();
 		chart.setOption({
 			grid: { left: 16, right: 16, top: 12, bottom: 12 },
 			xAxis: { show: false, type: "value", min: 0, max: getMaxX() },
@@ -58,11 +68,11 @@ export default function SwapAbout() {
 					smooth: true,
 					areaStyle: {
 						color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-							{ offset: 0, color: "rgba(255, 72, 72, 0.10)" },
+							{ offset: 0, color: trend.areaTop },
 							{ offset: 1, color: "rgba(255, 72, 72, 0.00)" },
 						]),
 					},
-					lineStyle: { color: "#FF4848", width: 4 },
+					lineStyle: { color: trend.line, width: 4 },
 					showSymbol: false,
 					// 初始绘制动画
 					animationDuration: INIT_MS,
@@ -79,7 +89,7 @@ export default function SwapAbout() {
 					data: [],
 					symbol: "circle",
 					symbolSize: 8,
-					itemStyle: { color: "#FF4848" },
+					itemStyle: { color: trend.point },
 					rippleEffect: { brushType: "stroke", scale: 4, period: 2 },
 					showEffectOn: "render",
 					zlevel: 1,
@@ -94,28 +104,33 @@ export default function SwapAbout() {
 		// 每 1-2s 追加一个数据点（简单的非负随机游走）
 		let timer: number | null = null;
 		let initTimer: number | null = null;
-		// 上升/暴跌循环控制
-		let phase: "rise" | "crash" = "rise";
-		const randInt = (min: number, max: number) => Math.floor(rand(min, max + 1));
-		let riseStepsLeft = randInt(10, 20); // 上升步数后触发一次暴跌
+		// 更自然的走势：带轻微漂移的随机游走 + 缓慢均值回归 + 偶发小冲击
+		let drift = rand(-0.05, 0.15);
+		let driftStepsLeft = Math.floor(rand(8, 16));
+		const baseLevel = () => Math.max(0.8, data[0][1] + 0.5);
+		let shockCountdown = Math.floor(rand(12, 28));
 		const getMinX = () => data[0][0];
 		const schedule = () => {
 			timer = window.setTimeout(() => {
 				const { idx, val } = getLast();
-				let nextVal: number;
-				if (phase === "rise") {
-					const delta = rand(0.05, 0.6); // 以小幅上涨为主
-					nextVal = Math.max(0, +(val + delta).toFixed(2));
-					riseStepsLeft -= 1;
-					if (riseStepsLeft <= 0) {
-						phase = "crash";
-					}
-				} else {
-					// 暴跌 80%
-					nextVal = +(val * 0.2).toFixed(2);
-					phase = "rise";
-					riseStepsLeft = randInt(10, 20);
+				// 漂移方向每隔一段时间随机调整
+				driftStepsLeft -= 1;
+				if (driftStepsLeft <= 0) {
+					drift = rand(-0.1, 0.18);
+					driftStepsLeft = Math.floor(rand(8, 16));
 				}
+				// 均值回归：拉回到一个缓慢上移的“基线”
+				const meanRevert = (baseLevel() - val) * 0.02;
+				// 轻噪声
+				let delta = drift + meanRevert + rand(-0.25, 0.35);
+				// 偶发小冲击（不再暴跌）
+				shockCountdown -= 1;
+				if (shockCountdown <= 0) {
+					delta += rand(-0.8, 0.8);
+					shockCountdown = Math.floor(rand(12, 28));
+				}
+				let nextVal = +(val + delta).toFixed(2);
+				nextVal = Math.max(0, nextVal);
 				const nextX = idx + 1;
 				data.push([nextX, nextVal]);
 				// 可选：限制最大长度，避免内存增长
@@ -123,12 +138,31 @@ export default function SwapAbout() {
 					data.shift();
 				}
 				const { idx: lx, val: ly } = getLast();
+				const nextTrend = getTrendColor();
 				// 同步更新折线与呼吸点，二者同动画时长，点始终贴线
 				chart.setOption({
 					xAxis: { min: getMinX(), max: getMaxX() },
 					series: [
-						{ id: "main-line", data, animationDurationUpdate: UPDATE_MS, animationEasingUpdate: "quartOut" },
-						{ id: "last-ripple", data: [[lx, ly]], animationDurationUpdate: UPDATE_MS, animationEasingUpdate: "quartOut" },
+						{
+							id: "main-line",
+							data,
+							animationDurationUpdate: UPDATE_MS,
+							animationEasingUpdate: "quartOut",
+							lineStyle: { color: nextTrend.line },
+							areaStyle: {
+								color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+									{ offset: 0, color: nextTrend.areaTop },
+									{ offset: 1, color: "rgba(255, 72, 72, 0.00)" },
+								]),
+							},
+						},
+						{
+							id: "last-ripple",
+							data: [[lx, ly]],
+							animationDurationUpdate: UPDATE_MS,
+							animationEasingUpdate: "quartOut",
+							itemStyle: { color: nextTrend.point },
+						},
 					],
 				});
 				schedule();
@@ -151,5 +185,5 @@ export default function SwapAbout() {
 		};
 	}, []);
 
-	return <div ref={chartRef} className="px-0 md:px-[16px]" style={{ width: "100%", height: 200 }} />;
+	return <div ref={chartRef} className="px-0 md:px-[10px]" style={{ width: "100%", height: 300 }} />;
 }

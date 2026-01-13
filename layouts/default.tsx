@@ -1,4 +1,3 @@
-import Footer from "@/components/footer";
 import { useState, useEffect } from "react";
 
 export default function DefaultLayout({
@@ -32,7 +31,6 @@ export default function DefaultLayout({
 	return (
 		<>
 			{children}
-			<Footer />
 		</>
 	);
 }

@@ -3,16 +3,22 @@ import { Input, Button } from "@heroui/react";
 import { useState } from "react";
 import MyAvatar from "@/components/avatar";
 import SwapAbout from "@/components/swapAbout";
+import MiningDialog from "@/components/miningDialog";
+import { SwapList } from "@/components/swapList";
+import ListDialog from "@/components/listDialog";
 
 export default function Swap() {
 
 	const [amount, setAmount] = useState("");
+	const [isMiningDialogOpen, setIsMiningDialogOpen] = useState(false);
+	const [isListDialogOpen, setIsListDialogOpen] = useState(false);
 
 	return <div className="flex flex-col items-center w-full px-[14px]">
 		<div className="w-full max-w-[600px] flex items-center justify-between mt-[24px]">
 			<div className="text-[28px] text-[#fff] font-bold">SWAP</div>
 			<div className="w-[100px] h-[32px] rounded-r-[16px] flex items-center justify-center gap-[2px] cursor-pointer"
 				style={{ background: "linear-gradient(90deg, rgba(239, 176, 0, 0.00) 0%, rgba(239, 176, 0, 0.25) 100%)" }}
+				onClick={() => { setIsMiningDialogOpen(true) }}
 			>
 				<ZuanIcon />
 				<div className="text-[14px] text-[#EFB000]">挖矿奖励</div>
@@ -67,7 +73,7 @@ export default function Swap() {
 						setAmount(formattedValue);
 					}
 				}}
-				endContent={<div className="shrink-0 flex items-center gap-[6px] h-[36px] border-[1px] border-[#303135] px-[8px] rounded-full cursor-pointer">
+				endContent={<div className="shrink-0 flex items-center gap-[6px] h-[36px] border-[1px] border-[#303135] px-[8px] rounded-full cursor-pointer" onClick={() => { setIsListDialogOpen(true); }}>
 					{/* <MyAvatar src={"/images/test.png"} alt="icon" className="w-[24px] h-[24px] bg-[transparent] border-[1px] border-[#36383B]" /> */}
 					{/* <BNBIcon className="w-[24px] h-[24px]" /> */}
 					<div className="text-[16px] text-[#fff]">Select</div>
@@ -97,9 +103,10 @@ export default function Swap() {
 					<span className="text-[12px] text-[#868789]">市值</span>
 				</div>
 			</div>
-			<div>
-				<SwapAbout />
-			</div>
+			<div><SwapAbout /></div>
+			<div><SwapList /></div>
+			<MiningDialog isOpen={isMiningDialogOpen} onOpenChange={setIsMiningDialogOpen} />
+			<ListDialog isOpen={isListDialogOpen} onOpenChange={setIsListDialogOpen} />
 		</div>
 	</div>;
 }

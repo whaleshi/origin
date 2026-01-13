@@ -1,6 +1,9 @@
 import { useRouter } from "next/router";
 import { useTranslation } from 'react-i18next';
 import { FooterIcon1, FooterIcon2, SwapIcon } from "./icons";
+import { usePrivy } from "@privy-io/react-auth";
+import usePrivyLogin from "@/hooks/usePrivyLogin";
+import { useAuthStore } from "@/stores/auth";
 
 interface FooterItem {
 	id: string;
@@ -14,8 +17,16 @@ interface FooterItem {
 export default function Footer() {
 	const router = useRouter();
 	const { t } = useTranslation();
-	const handleNavigation = (path: string) => {
-		router.push(path);
+	const { authenticated, logout } = usePrivy();
+	const { toLogin } = usePrivyLogin();
+	const { isLoggedIn, address, clearAuthState } = useAuthStore();
+
+	const handleNavigation = (item: FooterItem) => {
+		if (item.id === "me" && !address) {
+			newLogin();
+			return;
+		}
+		router.push(item.path);
 	};
 
 	const footerItems: FooterItem[] = [
@@ -39,15 +50,23 @@ export default function Footer() {
 		},
 	];
 
+	const newLogin = async () => {
+		if (authenticated) {
+			clearAuthState();
+			await logout();
+		}
+		toLogin();
+	}
+
 	return (
-		<footer className="fixed bottom-0 left-0 right-0 bg-[#1A1C20] border-t border-[#25262A] z-50 lg:hidden">
+		<footer className="fixed bottom-0 left-0 right-0 bg-[#1A1C20] border-t border-[#25262A] z-50 md:hidden">
 			<div className="flex items-center justify-around h-[52px]">
 				{footerItems.map((item) => {
 					const isActive = router.pathname === item.path;
 					return (
 						<div
 							key={item.id}
-							onClick={() => handleNavigation(item.path)}
+							onClick={() => handleNavigation(item)}
 							className="flex flex-col items-center justify-center cursor-pointer transition-colors duration-200 min-w-0 flex-1 relative"
 						>
 							{item.id === 'swap' && (

@@ -23,7 +23,7 @@ import "@/i18n"
 import { HeadWeb } from "@/layouts/head";
 export default function App({ Component, pageProps }: AppProps) {
 	const router = useRouter();
-	const hideFooter = router.pathname === "/token/[addr]";
+	const hideFooter = router.pathname === "/token/[addr]" || router.pathname === '/create' || router.pathname === '/search';
 	const [isMounted, setIsMounted] = useState(false);
 	const { i18n } = useTranslation();
 	const progressRef = useRef<{ timer: ReturnType<typeof setTimeout> | null; started: boolean }>({
@@ -136,7 +136,10 @@ export default function App({ Component, pageProps }: AppProps) {
 										<NextThemesProvider attribute="class" defaultTheme="dark">
 											<div className="relative flex flex-col h-screen bg-[#0D0F13] page-transition">
 												<Navbar />
-												<main className="mx-auto w-full flex-grow pt-[56px] lg:pt-[64px] pb-[52px] lg:pb-0">
+												<main
+													className={`mx-auto w-full flex-grow pt-[56px] md:pt-[64px] ${hideFooter ? "pb-0" : "pb-[52px]"
+														} md:pb-0`}
+												>
 													<Component {...pageProps} />
 												</main>
 												{!hideFooter && <Footer />}

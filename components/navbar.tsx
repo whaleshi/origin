@@ -1,6 +1,6 @@
 import { Navbar as HeroUINavbar, NavbarContent, Button, useDisclosure, Drawer, DrawerContent, DrawerHeader, DrawerBody, Divider } from "@heroui/react";
 import NextLink from "next/link";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router"
 import { Image, Input } from "@heroui/react"
 import { usePrivy } from "@privy-io/react-auth";
@@ -10,21 +10,47 @@ import { shortenAddress, useIsMobile } from "@/utils";
 import { useTranslation } from 'react-i18next';
 import { useBalanceContext } from "@/providers/balanceProvider";
 
-import { LogoIcon, TextIcon, MenuIcon } from "@/components/icons";
+import { LogoIcon, TextIcon, MenuIcon, LangIcon, HeaderXIcon, HeaderTgIcon, SearchInputIcon } from "@/components/icons";
 import { siteConfig } from "@/config/site";
 import { DEFAULT_CHAIN_CONFIG } from "@/config/chains";
 import { formatBigNumber } from '@/utils/formatBigNumber';
+import CreateDialog from "./createDialog";
+import TokenItem from "./tokenItem";
+import { WalletBox } from "./wallet";
+import MeList from "./meList";
+
+const SEARCH_TOKENS = [
+	{ name: "Launchcoin", symbol: "LAUNCH", address: "0x1234567890abcdef1234567890abcdef12345678", price: "$0.0743", change: "+14.39%" },
+	{ name: "Origin", symbol: "ORI", address: "0xabcdef1234567890abcdef1234567890abcdef12", price: "$0.0219", change: "-3.12%" },
+	{ name: "Refin", symbol: "RFI", address: "0x9876543210abcdef9876543210abcdef98765432", price: "$0.1120", change: "+2.58%" },
+	{ name: "Mood", symbol: "MOOD", address: "0xa1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0", price: "$0.0084", change: "+0.92%" },
+];
 
 
 export const Navbar = () => {
 	const router = useRouter();
 	const { t, i18n } = useTranslation();
-	const { isOpen: isWalletDrawerOpen, onOpen: onWalletDrawerOpen, onOpenChange: onWalletDrawerOpenChange } = useDisclosure();
 	const { isOpen: isMobileMenuOpen, onOpen: onMobileMenuOpen, onOpenChange: onMobileMenuOpenChange } = useDisclosure();
 	const [isWalletDropdownOpen, setIsWalletDropdownOpen] = useState(false);
 	const [lang, setLang] = useState('zh');
 	const [isAccessOpen, setIsAccessOpen] = useState(false);
 	const [accessTab, setAccessTab] = useState<'deposit' | 'withdraw'>('deposit');
+	const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+	const [inputVal, setInputVal] = useState("");
+	const [isSearchOpen, setIsSearchOpen] = useState(false);
+	const searchRef = useRef<HTMLDivElement>(null);
+
+	const searchResults = useMemo(() => {
+		const query = inputVal.trim().toLowerCase();
+		if (!query) return [];
+		return SEARCH_TOKENS.filter((item) => {
+			return (
+				item.name.toLowerCase().includes(query) ||
+				item.symbol.toLowerCase().includes(query) ||
+				item.address.toLowerCase().includes(query)
+			);
+		});
+	}, [inputVal]);
 
 	// 跳转到代币详情页
 	const handleTokenClick = () => {
@@ -61,16 +87,13 @@ export const Navbar = () => {
 	// 监听路由变化，关闭弹窗
 	useEffect(() => {
 		const handleRouteChange = () => {
-			// 同时关闭钱包抽屉
-			if (isWalletDrawerOpen) {
-				onWalletDrawerOpenChange();
-			}
 			// 关闭移动端菜单
 			if (isMobileMenuOpen) {
 				onMobileMenuOpenChange();
 			}
 			// 关闭钱包下拉菜单
 			setIsWalletDropdownOpen(false);
+			setIsSearchOpen(false);
 		};
 
 		router.events.on('routeChangeStart', handleRouteChange);
@@ -78,12 +101,24 @@ export const Navbar = () => {
 		return () => {
 			router.events.off('routeChangeStart', handleRouteChange);
 		};
-	}, [router.events, isWalletDrawerOpen, onWalletDrawerOpenChange, isMobileMenuOpen, onMobileMenuOpenChange]);
+	}, [router.events, isMobileMenuOpen, onMobileMenuOpenChange]);
 
 	// 监听登录状态变化，重置下拉菜单状态
 	useEffect(() => {
 		setIsWalletDropdownOpen(false);
 	}, [isLoggedIn]);
+
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+				setIsSearchOpen(false);
+			}
+		};
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, []);
 
 
 	// 处理点击外部关闭下拉框
@@ -104,7 +139,7 @@ export const Navbar = () => {
 	const handleWalletClick = () => {
 		// 使用hook检查屏幕尺寸，PC上打开下拉菜单，H5上打开抽屉
 		if (isMobile) {
-			onWalletDrawerOpen();
+			router.push("/me");
 		} else {
 			setIsWalletDropdownOpen(!isWalletDropdownOpen);
 		}
@@ -113,11 +148,6 @@ export const Navbar = () => {
 	const handleLangSwitch = () => {
 		const newLang = lang === 'en' ? 'zh' : 'en';
 		i18n.changeLanguage(newLang);
-	};
-
-	// 根据语言获取白皮书链接
-	const getWhitepaperUrl = () => {
-		return lang === 'en' ? 'https://whitepaper.ori.supply/en' : 'https://whitepaper.ori.supply';
 	};
 
 	const openAccessModal = (tab: 'deposit' | 'withdraw') => {
@@ -129,19 +159,100 @@ export const Navbar = () => {
 	const openAccessModalFromDrawer = (tab: 'deposit' | 'withdraw') => {
 		setAccessTab(tab);
 		setIsAccessOpen(true);
-		onWalletDrawerOpenChange();
+	};
+
+	const toCreate = () => {
+		if (isMobile) {
+			router.push("/create");
+		} else {
+			setIsCreateDialogOpen(true)
+		}
 	};
 
 	return (
 		<>
-			<HeroUINavbar maxWidth="full" position="static" className="fixed top-0 left-0 right-0 z-50 bg-[#0D0F13] border-b-[1px] border-[#25262A]" classNames={{ wrapper: "gap-[6px] px-[14px] h-[56px] lg:h-[64px]" }}>
+			<HeroUINavbar maxWidth="full" position="static" className="fixed top-0 left-0 right-0 z-50 bg-[#0D0F13] border-b-[1px] border-[#25262A]" classNames={{ wrapper: "gap-[6px] px-[14px] md:px-[24px] h-[56px] md:h-[64px]" }}>
 				<NextLink className="flex justify-start items-center gap-[6px] logo-container" href="/">
 					<LogoIcon className="w-[24px] h-[24px]" />
 					<TextIcon />
 				</NextLink>
-
+				<div className="text-[16px] hidden md:flex items-center gap-[16px] pl-[24px] font-semibold">
+					{[
+						{ href: '/', label: '首页', isExternal: false },
+						{ href: '/swap', label: 'Swap', isExternal: false },
+						{ href: '/stake', label: '矿池', isExternal: false },
+						{ href: '', label: '创建代币', isExternal: false, onClick: toCreate },
+						{ href: 'https://www.baidu.com', label: '运行机制', isExternal: true },
+					].map(({ href, label, isExternal, onClick }) => (
+						onClick ? (
+							<div
+								key={href}
+								className="hover:opacity-80 transition-opacity text-[#868789] cursor-pointer"
+								onClick={onClick}
+							>
+								{label}
+							</div>
+						) : isExternal ? (
+							<div
+								key={href}
+								className="hover:opacity-80 transition-opacity text-[#868789] cursor-pointer"
+								onClick={() => window.open(href, "_blank", "noopener,noreferrer")}
+							>
+								{label}
+							</div>
+						) : (
+							<NextLink
+								key={href}
+								href={href}
+								className={`hover:opacity-80 transition-opacity ${router.pathname === href ? 'text-[#fff]' : 'text-[#868789]'}`}
+							>
+								{label}
+							</NextLink>
+						)
+					))}
+				</div>
+				<div className="hidden md:flex flex-1"></div>
 				<NavbarContent justify="end" className="gap-[8px]">
-					<Button className="h-[32px] md:h-[36px] bg-[transparent] px-[12px] text-[13px] text-[#FD7438] rounded-[8px] border-[1px] border-[#FD7438] gap-[4px] min-h-[32px]" variant="flat" onPress={newLogin}>
+					<div className="hidden md:flex justify-end relative" ref={searchRef}>
+						<Input
+							classNames={{
+								inputWrapper: "w-full w-[400px] h-[36px] !border-[#191B1F] bg-[#191B1F] !border-[1.5px] rounded-[8px] hover:!border-[#191B1F] focus-within:!border-[#191B1F]",
+								input: "text-[13px] text-[#FFF] font-semibold placeholder:text-[#5B5B5B] uppercase tracking-[-0.07px]",
+							}}
+							placeholder="搜索代币、地址"
+							variant="bordered"
+							value={inputVal}
+							isDisabled={false}
+							onChange={(e) => { setInputVal(e.target.value); setIsSearchOpen(true); }}
+							onFocus={() => setIsSearchOpen(true)}
+							onKeyDown={(e) => {
+								if (e.key === "Escape") {
+									setIsSearchOpen(false);
+								}
+							}}
+							startContent={<SearchInputIcon />}
+						/>
+						{isSearchOpen && inputVal.trim() && (
+							<div className="absolute right-0 top-full mt-[8px] w-[400px] bg-[#0D0F13] border border-[#25262A] rounded-[12px] overflow-hidden z-50 p-[14px]"
+								style={{ boxShadow: "0 4px 16px 0 rgba(48, 49, 53, 0.65)" }}
+							>
+								{searchResults.length > 0 ? (
+									<div className="max-h-[400px] overflow-y-auto">
+										{
+											Array.from({ length: 9 }).map((_, index) => (
+												<div key={index} className='mt-[8px]'>
+													<TokenItem type={index % 3 + 1} />
+												</div>
+											))
+										}
+									</div>
+								) : (
+									<div className="px-[12px] py-[16px] text-[12px] text-[#868789]">暂无结果</div>
+								)}
+							</div>
+						)}
+					</div>
+					<Button className="h-[32px] md:h-[36px] bg-[transparent] px-[12px] text-[13px] text-[#FD7438] rounded-[8px] border-[1px] border-[#FD7438] gap-[4px] min-h-[32px]" variant="flat" onPress={toCreate}>
 						创建代币
 					</Button>
 					{
@@ -151,8 +262,12 @@ export const Navbar = () => {
 									{shortenAddress(address!)}
 								</Button>
 								{isWalletDropdownOpen && (
-									<div className="absolute top-full right-0 mt-[8px] w-[375px] bg-[#191B1F] border border-[#25262A] rounded-[12px] p-[16px] z-50">
-										<div className="text-[16px] text-[#fff] font-semibold mb-[16px]">{t('Common.myWallet')}</div>
+									<div className="absolute top-full right-0 mt-[8px] w-[400px] bg-[#0D0F13] border border-[#303135] rounded-[12px] p-[16px] px-[14px] z-50"
+										style={{ boxShadow: "0 4px 16px 0 rgba(48, 49, 53, 0.65)" }}
+									>
+										<div className="text-[28px] text-[#fff] font-bold mb-[16px]">资产</div>
+										<WalletBox />
+										<div className="mt-[16px] max-h-[50vh] overflow-y-auto"><MeList /></div>
 									</div>
 								)}
 							</div>
@@ -160,34 +275,20 @@ export const Navbar = () => {
 							连接钱包
 						</Button>
 					}
-					<MenuIcon className="cursor-pointer" />
-					{/* <LangIcon
+					<HeaderXIcon className="cursor-pointer hover:opacity-80 transition-opacity hidden md:block" />
+					<HeaderTgIcon className="cursor-pointer hover:opacity-80 transition-opacity hidden md:block" />
+					<LangIcon
 						lang={lang as 'zh' | 'en'}
-						className="cursor-pointer hover:opacity-80 transition-opacity hidden lg:block"
+						className="cursor-pointer hover:opacity-80 transition-opacity hidden md:block"
 						onClick={handleLangSwitch}
 					/>
-					<MenuIcon className="cursor-pointer hover:opacity-80 transition-opacity block lg:hidden" onClick={onMobileMenuOpen} /> */}
+					<MenuIcon className="cursor-pointer hover:opacity-80 transition-opacity block md:hidden" onClick={onMobileMenuOpen} />
 				</NavbarContent>
 			</HeroUINavbar>
-			<Drawer isOpen={isWalletDrawerOpen} onOpenChange={onWalletDrawerOpenChange} placement="bottom" hideCloseButton classNames={{
-				base: "max-h-[80vh]"
-			}}>
-				<DrawerContent>
-					{(onClose) => (
-						<>
-							<DrawerHeader className="text-center relative p-0 pt-[8px]">
-								<div className="h-[48px] flex items-center justify-center w-full text-[#fff]">{t('Common.myWallet')}</div>
-							</DrawerHeader>
-							<DrawerBody className="px-[16px] pb-[30px]">
-							</DrawerBody>
-						</>
-					)}
-				</DrawerContent>
-			</Drawer>
 			{/* Mobile Menu Overlay */}
 			{isMobileMenuOpen && (
 				<div
-					className="fixed inset-0 z-50 block lg:hidden"
+					className="fixed inset-0 z-50 block md:hidden"
 					onClick={() => onMobileMenuOpenChange()}
 				>
 					<div
@@ -196,41 +297,33 @@ export const Navbar = () => {
 						onClick={(e) => e.stopPropagation()}
 					>
 						<div className="flex flex-col">
-							{/* Language Switcher */}
 							<div className="flex items-center justify-between h-[48px]">
-								<span className="text-[14px] text-[#fff] font-medium">{t('Common.language')}</span>
-								{/* <LangIcon
+								<span className="text-[14px] text-[#fff] font-medium">语言</span>
+								<LangIcon
 									lang={lang as 'zh' | 'en'}
 									className="cursor-pointer hover:opacity-80 transition-opacity"
 									onClick={handleLangSwitch}
-								/> */}
+								/>
 							</div>
-
 							<Divider className="bg-[#0D0F13]" />
-
-							{/* Whitepaper */}
-							{/* <div
-								className="flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity  h-[48px]"
-								onClick={() => window.open(getWhitepaperUrl(), '_blank')}
-							>
-								<span className="text-[14px] text-[#fff] font-medium">{t('Common.book')}</span>
-								<RightIcon />
-							</div> */}
-
-							<Divider className="bg-[#0D0F13]" />
-
-							{/* Social Media */}
 							<div className="flex items-center justify-between h-[48px]">
-								<div className="text-[14px] text-[#fff] font-medium">{t('Common.followUs')}</div>
+								<div className="text-[14px] text-[#fff] font-medium">加入社区</div>
 								<div className="flex items-center gap-[12px]">
 									<Image src="/images/x.png" alt="x" className="w-[24px] h-[24px]" disableSkeleton disableAnimation radius="none" onClick={() => { window.open(siteConfig.links.x, '_blank'); }} />
 									<Image src="/images/tg.png" alt="tg" className="w-[24px] h-[24px]" disableSkeleton disableAnimation radius="none" onClick={() => { window.open(siteConfig.links.tg, '_blank'); }} />
 								</div>
 							</div>
+							<Divider className="bg-[#0D0F13]" />
+							<div
+								className="flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity  h-[48px]"
+							>
+								<span className="text-[14px] text-[#fff] font-medium">运行机制</span>
+							</div>
 						</div>
 					</div>
 				</div>
 			)}
+			<CreateDialog isOpen={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} />
 		</>
 	);
 };

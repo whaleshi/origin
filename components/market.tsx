@@ -66,8 +66,8 @@ export default function Market() {
 				placement="bottom-center"
 				classNames={{
 					backdrop: "bg-black/80",
-					base: "bg-[#191B1F] border-none rounded-[0px] rounded-t-[12px] mx-0 lg:mx-4 mb-0 lg:my-auto",
-					wrapper: "items-end lg:items-center",
+					base: "bg-[#191B1F] border-none rounded-[0px] rounded-t-[12px] mx-0 md:mx-4 mb-0 md:my-auto",
+					wrapper: "items-end md:items-center",
 					header: "border-none pb-0",
 					body: "p-0"
 				}}
