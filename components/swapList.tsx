@@ -52,7 +52,7 @@ export const SwapList = () => {
 						{isLoading ? (
 							<div className="flex h-[380px] items-center justify-center text-[14px] text-[#868789]">
 								<div className="flex flex-col items-center gap-[12px]">
-									<img src="/images/loading.gif" alt="Loading" className="w-[40px] h-[40px]" />
+									<img src="/images/logo.png" alt="Loading" className="w-[40px] h-[40px]" />
 								</div>
 							</div>
 						) : displayData?.list?.length > 0 ? (
