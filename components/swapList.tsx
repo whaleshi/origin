@@ -71,11 +71,11 @@ export const SwapList = ({ coinInfo }: SwapListProps) => {
 									</div>
 									<div className="w-[100px] md:flex-[1] shrink-0 text-[#fff] break-words text-right flex items-center justify-end gap-[4px]">
 										<MyAvatar src="/images/origin.png" alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
-										{BigNumber(ethers.formatUnits(BigInt(row?.is_buy === 0 ? row?.amount_out : row?.amount_in || '0'), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed()}
+										{BigNumber(ethers.formatUnits(BigInt(row?.is_buy === 0 ? row?.amount_out : row?.amount_in || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed()}
 									</div>
 									<div className="w-[100px] flex-[1] shrink-0 flex items-center justify-end gap-[4px] min-w-0">
 										<MyAvatar src={coinInfo?.image_url} alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
-										{BigNumber(ethers.formatUnits(BigInt(row?.is_buy === 0 ? row?.amount_in : row?.amount_out || '0'), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed()}
+										{BigNumber(ethers.formatUnits(BigInt(row?.is_buy === 0 ? row?.amount_in : row?.amount_out || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed()}
 									</div>
 									<div className="w-[120px] flex-[1.2] shrink-0 text-[#fff] text-right text-[11px] leading-tight flex items-center justify-end gap-[4px] min-w-0">
 										{row?.event_timestamp ? new Date(row?.event_timestamp * 1000).toLocaleString() : '-'}

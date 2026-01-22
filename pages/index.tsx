@@ -23,7 +23,7 @@ export default function GamePage() {
                         <div className="text-[14px] md:text-[15px] mt-[16px] md:mt-[24px] text-[#fff]">运行机制→</div>
                     </div>
                     <div className="absolute bottom-0 w-full h-[80px] md:h-[180px] z-10 block md:hidden"
-                        style={{ background: 'linear-gradient(180deg, rgba(16, 12, 21, 0.00) 0%, #100C15 100%)' }}
+                        style={{ background: "linear-gradient(180deg, rgba(13, 15, 19, 0.00) 0%, #0D0F13 100%)" }}
                     ></div>
                 </div>
                 <div className="absolute top-[8px] w-full z-11">

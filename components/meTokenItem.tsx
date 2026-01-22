@@ -32,20 +32,17 @@ export default function MeTokenItem({ type, data, tokenBalanceText, tokenBalance
 	const balanceSuffix = tokenBalanceText && tokenBalanceText !== "--" && (type === "holder" || type === "created")
 		? `${tokenBalanceText}`
 		: "";
-
-	const launchStatus = data?.launch_status ?? tokenInfo?.launch_status;
-	const launchProgress = data?.launch_progress ?? tokenInfo?.launch_progress ?? 0;
 	const priceValue = tokenInfo?.price_usd_f ?? data?.price_usd_f;
 	const changeValue = tokenInfo?.price_change_24h_f ?? tokenInfo?.coin_info?.price_change_24h_f ?? data?.price_change_24h_f;
-	const isOnX = data?.is_on_x ?? tokenInfo?.is_on_x;
-	const progress = (data?.launch_progress ?? tokenInfo?.coin_info?.launch_progress ?? 0);
+	const isOnX = tokenInfo?.is_on_x ?? tokenInfo?.is_on_x;
+	const progress = (tokenInfo?.launch_progress ?? tokenInfo?.coin_info?.launch_progress ?? 0);
 	const displayPrice = formatPrice(priceValue, "$0.00");
 	const displayChange = formatPercent(changeValue, "0.00%");
 	const changeClass = getPercentClass(changeValue);
 	const isMining = type === "mining";
-	const miningRoundId = data?.show_round_id;
+	const miningRoundId = tokenInfo?.show_round_id;
 	const miningRoundText = miningRoundId !== null && miningRoundId !== undefined ? `#${miningRoundId}` : "#--";
-	const miningShareText = formatPercent(data?.my_ratio ?? data?.round_ratio ?? data?.ratio, "0.00%");
+	const miningShareText = formatPercent(tokenInfo?.my_ratio ?? tokenInfo?.round_ratio ?? tokenInfo?.ratio, "0.00%");
 	const balanceUsdText = (() => {
 		if (!tokenBalanceValue || tokenBalanceValue <= 0n || priceValue === null || priceValue === undefined) {
 			return "--";
@@ -63,7 +60,6 @@ export default function MeTokenItem({ type, data, tokenBalanceText, tokenBalance
 		});
 		return formatted.includes("$") ? formatted : `$${formatted}`;
 	})();
-	console.log(data, 'data in MeTokenItem');
 	return (
 		<div
 			className="w-full h-[64px] rounded-[8px] p-[12px] flex items-center cursor-pointer gap-[8px] overflow-hidden"
