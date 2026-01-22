@@ -60,7 +60,7 @@ export default async function handler(request: NextRequest) {
                 <div tw="flex w-full h-full">
                     <div tw="h-[630px] w-[1200px] flex flex-col relative">
                         <img tw="absolute" src={marketImg} width={1200} height={630} alt="bg" />
-                        {/* <div
+                        <div
                             tw="text-[120px] text-[#fff] font-extrabold pt-[214px] pl-[96px] relative max-w-[738px]"
                             style={{ fontFamily: 'HarmonyOS Sans SC', whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
                         >
@@ -79,7 +79,7 @@ export default async function handler(request: NextRequest) {
                             >
                                 🪏
                             </div>
-                        )} */}
+                        )}
                     </div>
                 </div>
             </div>
