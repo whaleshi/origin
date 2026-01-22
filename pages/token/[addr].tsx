@@ -5,6 +5,9 @@ import Mining from "@/components/mining";
 import { getCoinShow } from "@/service/api";
 import { useRouter } from "next/router";
 import { useQuery } from "@tanstack/react-query";
+import { ethers } from "ethers";
+import { DEFAULT_CHAIN_CONFIG } from "@/config/chains";
+import TokenFactoryAbi from "@/constant/TokenFactory.json";
 
 
 const TAB_CLASS = "w-[90px] flex items-center justify-center rounded-[16px] cursor-pointer";
@@ -98,26 +101,62 @@ export async function getServerSideProps(context: { params?: { addr?: string } }
 		return { props: {} };
 	}
 	try {
+		let metadata: {
+			name?: string | null;
+			symbol?: string | null;
+			image?: string | null;
+			is_refine?: number | null;
+		} = {};
+
 		const apiBase = process.env.NEXT_PUBLIC_API_URL;
-		if (!apiBase) return { props: {} };
-		const response = await fetch(`${apiBase}/v1/originfun/coin_show`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/x-www-form-urlencoded",
-			},
-			body: new URLSearchParams({ mint: addr }),
-		});
-		const res = response.ok ? await response.json() : null;
-		const data = res?.data ?? null;
-		if (!data) return { props: {} };
-		return {
-			props: {
-				tokenMetadata: {
+		if (apiBase) {
+			const response = await fetch(`${apiBase}/v1/originfun/coin_show`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded",
+				},
+				body: new URLSearchParams({ mint: addr }),
+			});
+			const res = response.ok ? await response.json() : null;
+			const data = res?.data ?? null;
+			if (data) {
+				metadata = {
 					name: data?.name ?? null,
 					symbol: data?.symbol ?? null,
 					image: data?.image_url ?? null,
 					is_refine: data?.is_refine ?? 0,
-				},
+				};
+			}
+		}
+
+		if (!metadata.name || !metadata.symbol || !metadata.image) {
+			const rpcUrl = DEFAULT_CHAIN_CONFIG?.rpcUrl;
+			const tokenFactory = DEFAULT_CHAIN_CONFIG?.tokenFactory as `0x${string}` | undefined;
+			if (rpcUrl && tokenFactory) {
+				const provider = new ethers.JsonRpcProvider(rpcUrl);
+				const contract = new ethers.Contract(tokenFactory, TokenFactoryAbi, provider);
+				const uri = await contract.uri(addr);
+				if (uri) {
+					const response = await fetch(uri);
+					if (response.ok) {
+						const tokenData = await response.json();
+						metadata = {
+							name: metadata.name ?? tokenData?.name ?? null,
+							symbol: metadata.symbol ?? tokenData?.symbol ?? null,
+							image: metadata.image ?? tokenData?.image ?? null,
+							is_refine: metadata.is_refine ?? 0,
+						};
+					}
+				}
+			}
+		}
+
+		if (!metadata.name && !metadata.symbol && !metadata.image) {
+			return { props: {} };
+		}
+		return {
+			props: {
+				tokenMetadata: metadata,
 			},
 		};
 	} catch {
