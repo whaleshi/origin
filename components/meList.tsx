@@ -155,13 +155,13 @@ export default function MeList() {
 							})
 						) : activeTabKey === "mining" && activeItems.length > 0 ? (
 							activeItems.map((item, index) => {
-								const itemData = item?.coin_info ?? item;
+								const itemData = item;
 								const key = itemData?.id ?? itemData?.coin_id ?? item?.mining_address ?? itemData?.address ?? index;
 								return (
 									<div key={key} className='mb-[8px]'>
 										<MeTokenItem
 											type="mining"
-											data={item}
+											data={itemData}
 											onClick={(clicked) => router.push(`/token/${clicked?.coin_info?.mint}`)}
 										/>
 									</div>

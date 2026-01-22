@@ -2,9 +2,10 @@ import MyAvatar from "@/components/avatar";
 import { getGameInfo } from "@/service/api";
 import { useAuthStore } from "@/stores/auth";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { format8 } from "@/utils/number";
 import { LogoIcon } from "./icons";
+import useCountdown from "@/hooks/useCountdown";
 
 type MiningAboutProps = {
 	coinInfo?: any;
@@ -12,7 +13,7 @@ type MiningAboutProps = {
 
 export default function MiningAbout({ coinInfo }: MiningAboutProps) {
 	const { address } = useAuthStore();
-	const [countdown, setCountdown] = useState("00:00:00");
+	const countdown = useCountdown(coinInfo?.end_ts);
 	const miningAddress = coinInfo?.mint;
 	const { data: gameInfo } = useQuery({
 		queryKey: ["gameInfo", address, miningAddress],
@@ -26,27 +27,6 @@ export default function MiningAbout({ coinInfo }: MiningAboutProps) {
 	});
 
 	const info = gameInfo?.data ?? {};
-	useEffect(() => {
-		const endTs = info?.end_ts;
-		if (!endTs || Number.isNaN(Number(endTs))) {
-			setCountdown("00:00:00");
-			return;
-		}
-
-		const updateCountdown = () => {
-			const remainingMs = Math.max(0, Number(endTs) * 1000 - Date.now());
-			const totalSeconds = Math.floor(remainingMs / 1000);
-			const hours = Math.floor(totalSeconds / 3600);
-			const minutes = Math.floor((totalSeconds % 3600) / 60);
-			const seconds = totalSeconds % 60;
-			const pad2 = (value: number) => String(value).padStart(2, "0");
-			setCountdown(`${pad2(hours)}:${pad2(minutes)}:${pad2(seconds)}`);
-		};
-
-		updateCountdown();
-		const timer = setInterval(updateCountdown, 1000);
-		return () => clearInterval(timer);
-	}, [info?.end_ts]);
 
 	return (
 		<div className="w-full rounded-[8px] overflow-hidden border-[1px] border-[#25262A]">

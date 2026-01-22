@@ -123,7 +123,7 @@ export const MiningList = ({ coinInfo }: MiningListProps) => {
 						<div className={selectedTab != 'global' ? 'w-[100px] md:flex-[1] shrink-0 text-right' : 'w-[60px] md:flex-[0.6] shrink-0 text-right'}>{selectedTab === 'global' ? t('Game.player') : t('Game.buy')}</div>
 						<div className="w-[100px] md:flex-[1] shrink-0 text-right">{selectedTab === 'global' ? t('Game.buy') : t('Game.sell')}</div>
 						<div className="w-[100px] md:flex-[1] shrink-0 text-right">{selectedTab === 'global' ? t('Game.sell') : t('Game.netBuys')}</div>
-						<div className="w-[100px] md:flex-[1] shrink-0 text-right">{selectedTab === 'global' ? t('Game.netBuys') : t('Game.reward')}</div>
+						<div className="w-[100px] md:flex-[1] shrink-0 text-right">{selectedTab === 'global' ? `${displayData?.is_trade ? t('Game.netBuys') : t('Game.netBuy')}` : t('Game.reward')}</div>
 						<div className="w-[120px] md:flex-[1.2] shrink-0 text-right">{t('Game.time')}</div>
 					</div>
 
@@ -151,13 +151,18 @@ export const MiningList = ({ coinInfo }: MiningListProps) => {
 									</div>
 									<div className="w-[100px] md:flex-[1] shrink-0 text-[#fff] break-words text-right flex items-center justify-end gap-[4px]">
 										<MyAvatar src="/images/origin.png" alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
-										{selectedTab === 'global' ? BigNumber(ethers.formatUnits(BigInt(row?.total_sell_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed() : BigNumber(ethers.formatUnits(BigInt(row?.net_buy_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed()}
+										{selectedTab === 'global'
+											? BigNumber(ethers.formatUnits(BigInt(row?.total_sell_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed()
+											: BigNumber(ethers.formatUnits(BigInt(row?.is_trade ? row?.trade_amount : row?.net_buy_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed()}
 									</div>
 									<div className="w-[100px] md:flex-[1] shrink-0 flex items-center justify-end gap-[4px] min-w-0">
 										{
 											selectedTab != 'global' ? <MyAvatar src={coinInfo?.image_url} alt="icon" className="w-[14px] h-[14px] bg-[transparent] grayscale" /> : <MyAvatar src="/images/origin.png" alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
 										}
-										{selectedTab === 'global' ? BigNumber(ethers.formatUnits(BigInt(row?.total_trade_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed() : BigNumber(ethers.formatUnits(BigInt(row?.normal_reward_amount || '0'), 8)).plus(ethers.formatUnits(BigInt(row?.mother_reward_amount || '0'), 8)).dp(2, BigNumber.ROUND_DOWN).toFixed()}
+										{selectedTab === 'global'
+											? BigNumber(ethers.formatUnits(BigInt(row?.is_trade ? row?.total_trade_amount : row?.total_net_buy_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed()
+											: BigNumber(ethers.formatUnits(BigInt(row?.normal_reward_amount || '0'), 8)).plus(ethers.formatUnits(BigInt(row?.mother_reward_amount || '0'), 8)).dp(2, BigNumber.ROUND_DOWN).toFixed()
+										}
 									</div>
 									<div className="w-[120px] md:flex-[1.2] shrink-0 text-[#fff] text-right text-[11px] leading-tight">{row?.created_ts ? new Date(row?.created_ts * 1000).toLocaleString() : '-'}</div>
 								</div>

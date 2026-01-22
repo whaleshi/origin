@@ -5,6 +5,7 @@ import { ItemIcon } from "./icons";
 import ScrollingName from "./scrollingName";
 import BigNumber from "bignumber.js";
 import { Skeleton } from "@heroui/react";
+import useCountdown from "@/hooks/useCountdown";
 
 type MeTokenItemType = "holder" | "mining" | "created";
 
@@ -40,9 +41,9 @@ export default function MeTokenItem({ type, data, tokenBalanceText, tokenBalance
 	const displayChange = formatPercent(changeValue, "0.00%");
 	const changeClass = getPercentClass(changeValue);
 	const isMining = type === "mining";
-	const miningRoundId = tokenInfo?.show_round_id;
+	const miningRoundId = data?.mining_info?.round_id;
 	const miningRoundText = miningRoundId !== null && miningRoundId !== undefined ? `#${miningRoundId}` : "#--";
-	const miningShareText = formatPercent(tokenInfo?.my_ratio ?? tokenInfo?.round_ratio ?? tokenInfo?.ratio, "0.00%");
+	const miningShareText = formatPercent(data?.mining_info?.my_ratio, "0.00%");
 	const balanceUsdText = (() => {
 		if (!tokenBalanceValue || tokenBalanceValue <= 0n || priceValue === null || priceValue === undefined) {
 			return "--";
@@ -78,7 +79,7 @@ export default function MeTokenItem({ type, data, tokenBalanceText, tokenBalance
 			<div className='flex flex-col justify-between flex-1 min-w-0 overflow-hidden relative h-[40px]'>
 				<ScrollingName text={displayName} className="text-[14px] text-[#fff] pr-[10px]" />
 				{isMining ? (
-					<div className='text-[12px] text-[#868789] truncate'>{miningRoundText}</div>
+					<div className='text-[12px] text-[#868789] truncate'>{miningRoundText}<span className="ml-[4px] text-[#FD7438]">{useCountdown(data?.mining_info?.end_ts)}</span></div>
 				) : isOnX === 0 ?
 					<div className='text-[12px] text-[#868789] truncate'>{displaySymbol.toUpperCase()}</div>
 					: <div className='text-[12px] text-[#868789]'>{balanceSuffix}</div>
