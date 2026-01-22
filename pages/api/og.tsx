@@ -68,7 +68,7 @@ export default async function handler(request: NextRequest) {
                         </div>
                         <div tw="text-[40px] text-[#fff] pt-[10px] pl-[96px] relative font-extralight" style={{ fontFamily: 'HarmonyOS Sans SC' }}>ORI.SUPPLY</div>
                         <img tw="absolute top-[156px] right-[142px] rounded-full" src={tokenImg as string} width={320} height={320} alt="logo" />
-                        {isRefine && (
+                        {/* {isRefine && (
                             <div
                                 tw="absolute right-[96px] bottom-[64px] w-[88px] h-[88px] rounded-full flex items-center justify-center"
                                 style={{
@@ -79,7 +79,7 @@ export default async function handler(request: NextRequest) {
                             >
                                 🪏
                             </div>
-                        )}
+                        )} */}
                     </div>
                 </div>
             </div>
