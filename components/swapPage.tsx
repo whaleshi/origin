@@ -260,6 +260,10 @@ export default function SwapPage() {
 						toLogin();
 						return;
 					}
+					if (isInsufficient) {
+						customToast({ title: "余额不足", type: "error" });
+						return;
+					}
 					if (tradeSide === "buy") {
 						handleBuy();
 					} else {

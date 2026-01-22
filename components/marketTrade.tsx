@@ -50,6 +50,13 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 		currentSide === "buy"
 			? `${formatBigNumber(balance)} ${symbol}`
 			: `${tokenBalanceText} ${tokenSymbol}`;
+	const walletBalanceValue = (() => {
+		if (currentSide !== "buy") return tokenBalanceValue;
+		const bn = new BigNumber(balance || 0);
+		if (!bn.isFinite() || bn.lte(0)) return 0n;
+		const scaled = bn.multipliedBy(new BigNumber(10).pow(18)).integerValue(BigNumber.ROUND_DOWN);
+		return BigInt(scaled.toFixed(0));
+	})();
 	const isBuy = currentSide === "buy";
 	const amountWei = (() => {
 		const source = amountValue || amount;
@@ -88,8 +95,9 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 			.integerValue(BigNumber.ROUND_DOWN);
 		return BigInt(minOut.toFixed(0));
 	})();
+	const isInsufficient = amountWei > 0n && amountWei > walletBalanceValue;
 	const isActionDisabled = address
-		? !amount || amountWei <= 0n || (isBuy ? minAmountOut <= 0n : false)
+		? !amount || amountWei <= 0n || (isBuy ? minAmountOut <= 0n : false) || isInsufficient
 		: false;
 	const actionLabel = address ? (isBuy ? "立即买入" : "立即卖出") : "Connect Wallet";
 	const setSellAmountPercent = (percent: number) => {
@@ -117,6 +125,10 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 	const handleBuy = async () => {
 		if (!address) {
 			toLogin();
+			return;
+		}
+		if (isInsufficient) {
+			showErrorToast("余额不足");
 			return;
 		}
 		if (!tokenFactoryAddress || !coinInfo?.mint || amountWei <= 0n || !publicClient) return;
@@ -168,6 +180,10 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 	const handleSell = async () => {
 		if (!address) {
 			toLogin();
+			return;
+		}
+		if (isInsufficient) {
+			showErrorToast("余额不足");
 			return;
 		}
 		if (!tokenFactoryAddress || !coinInfo?.mint || amountWei <= 0n || !publicClient) return;

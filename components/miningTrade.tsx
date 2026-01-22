@@ -26,8 +26,16 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 	const tokenAvatar = coinInfo?.image_url || "/images/default.png";
 	const originAddress = DEFAULT_CHAIN_CONFIG?.origin as `0x${string}` | undefined;
 	const originSymbol = DEFAULT_CHAIN_CONFIG?.originSymbol ?? "ORI";
-	const { tokenBalanceText: originBalanceText, refetchTokenBalance: refetchOriginBalance } = useTokenBalance(originAddress, 18);
-	const { tokenBalanceText: tokenBalanceText, refetchTokenBalance: refetchMemeBalance } = useTokenBalance(coinInfo?.mint as `0x${string}` | undefined, 18);
+	const {
+		tokenBalanceText: originBalanceText,
+		tokenBalanceValue: originBalanceValue,
+		refetchTokenBalance: refetchOriginBalance,
+	} = useTokenBalance(originAddress, 18);
+	const {
+		tokenBalanceText: tokenBalanceText,
+		tokenBalanceValue: tokenBalanceValue,
+		refetchTokenBalance: refetchMemeBalance,
+	} = useTokenBalance(coinInfo?.mint as `0x${string}` | undefined, 18);
 	const swapRouterAddress = DEFAULT_CHAIN_CONFIG?.swapRouter as `0x${string}` | undefined;
 	const queryClient = useQueryClient();
 	const { address } = useAuthStore();
@@ -37,6 +45,10 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 			? originBalanceText
 			: tokenBalanceText;
 	const balanceSymbol = side === "buy" ? originSymbol : tokenSymbol;
+	const balanceValue =
+		side === "buy"
+			? originBalanceValue
+			: tokenBalanceValue;
 	const handleSwapSuccess = () => {
 		refetchOriginBalance();
 		refetchMemeBalance();
@@ -76,8 +88,9 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 			showErrorToast(`${actionText}失败`);
 		},
 	});
+	const isInsufficient = amountWei > 0n && amountWei > balanceValue;
 	const isActionDisabled = address
-		? !amount || amountWei <= 0n || minAmountOut <= 0n || isApproving || isSwapping
+		? !amount || amountWei <= 0n || minAmountOut <= 0n || isApproving || isSwapping || isInsufficient
 		: false;
 	const actionLabel = address ? (side === "buy" ? "挖矿" : "卖出") : "Connect Wallet";
 
@@ -167,6 +180,10 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 							toLogin();
 							return;
 						}
+						if (isInsufficient) {
+							showErrorToast("余额不足");
+							return;
+						}
 						handleBuy();
 					}}
 				>
@@ -181,6 +198,10 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 					onPress={() => {
 						if (!address) {
 							toLogin();
+							return;
+						}
+						if (isInsufficient) {
+							showErrorToast("余额不足");
 							return;
 						}
 						handleSell();
