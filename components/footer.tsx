@@ -62,7 +62,9 @@ export default function Footer() {
 		<footer className="fixed bottom-0 left-0 right-0 bg-[#1A1C20] border-t border-[#25262A] z-50 md:hidden">
 			<div className="flex items-center justify-around h-[52px]">
 				{footerItems.map((item) => {
-					const isActive = router.pathname === item.path;
+					const isActive = item.id === "swap"
+						? router.asPath.startsWith("/swap")
+						: router.pathname === item.path;
 					return (
 						<div
 							key={item.id}

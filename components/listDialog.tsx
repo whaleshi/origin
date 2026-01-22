@@ -1,20 +1,43 @@
-import { Button, Form, Input, Textarea, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from "@heroui/react";
+import { Input, Modal, ModalContent, ModalHeader, ModalBody } from "@heroui/react";
 import { CloseIcon, SearchInputIcon } from "./icons";
-import MyAvatar from "@/components/avatar";
-import MiningAbout from "./miningAbout";
-import MiningRewards from "./miningRewards";
-import { MiningList } from "./miningList";
-import { useState } from "react";
-import TokenItem from "./tokenItem";
+import { useMemo, useState } from "react";
+import TokenItem, { TokenItemSkeleton } from "./tokenItem";
+import router from "next/router";
+import { getCoinList } from '@/service/api';
+import { useQuery } from "@tanstack/react-query";
 
 type listDialogProps = {
 	isOpen: boolean;
 	onOpenChange: (open: boolean) => void;
+	onSelect?: (item: any) => void;
 };
 
-export default function ListDialog({ isOpen, onOpenChange }: listDialogProps) {
+export default function ListDialog({ isOpen, onOpenChange, onSelect }: listDialogProps) {
 
 	const [inputValue, setInputValue] = useState("");
+	const keyword = inputValue.trim();
+
+	const { data, isLoading } = useQuery({
+		queryKey: ["coinList", "mining", keyword],
+		queryFn: async () => {
+			const params = {
+				page: 1,
+				page_size: 50,
+				sort_type: 4,
+				filter_type: 2,
+				keyword,
+			};
+			const result = await getCoinList(params);
+			return result?.data;
+		},
+		enabled: isOpen,
+	});
+	const filteredList = useMemo(() => {
+		const list = Array.isArray((data as { list?: unknown[] } | null | undefined)?.list)
+			? (data as { list?: any[] }).list ?? []
+			: (Array.isArray(data) ? data : []);
+		return list;
+	}, [data]);
 
 	return (
 		<Modal
@@ -64,11 +87,37 @@ export default function ListDialog({ isOpen, onOpenChange }: listDialogProps) {
 					<div className="text-[16px] w-full mt-[24px] px-[14px] mb-[10px]">热门矿池</div>
 					<div className='w-full max-h-[50vh] overflow-y-auto'>
 						{
-							Array.from({ length: 19 }).map((_, index) => (
-								<div key={index} className='mt-[8px] px-[14px]'>
-									<TokenItem type={index % 3 + 1} bg='#25262A' />
+							isLoading ? (
+								<div className="mt-[8px] px-[14px] flex flex-col gap-[8px]">
+									{Array.from({ length: 10 }).map((_, index) => (
+										<TokenItemSkeleton key={index} />
+									))}
 								</div>
-							))
+							) : (
+								filteredList.length > 0 ? (
+									filteredList.map((item, index) => (
+										<div key={item?.id ?? item?.coin_id ?? item?.address ?? index} className='mt-[8px] px-[14px]'>
+											<TokenItem
+												bg='#25262A'
+												data={item}
+												onClick={(clicked) => {
+													if (onSelect) {
+														onSelect(clicked);
+														onOpenChange(false);
+													} else {
+														router.push(`/token/${clicked?.mint}`);
+													}
+												}}
+											/>
+										</div>
+									))
+								) : (
+									<div className="h-[200px] mt-[8px] flex flex-col items-center justify-center">
+										<img src="/images/nothing.png" className="w-[80px] h-[80px]" />
+										<div className="text-[#868789] text-[14px]">暂无数据</div>
+									</div>
+								)
+							)
 						}
 					</div>
 				</ModalBody>

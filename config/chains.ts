@@ -15,26 +15,24 @@ export const CHAINS_CONFIG = {
             explorerUrl: "https://testnet.bscscan.com",
             rpcUrl: "https://delicate-old-breeze.bsc-testnet.quiknode.pro/4e8edc72f64856f8e8fa3377a81c9f3a1f6b5dee/",
             // rpcUrl: "https://data-seed-prebsc-1-s1.bnbchain.org:8545",
-            readOreContract: "0xF2db01A5Ef364a55C9aCBDC2223711fB6Ea334A4",
-            oreContract: "0x8Cc12430C18187cE40002c9a67f803fc5591344a",
-            ori: "0x65Ca17cd1F049F54b40A3A2E622Fd67380Cb0101",
-            claimContract: "0xb1D5F44E94Ab9428E6217c3517355c173F3544D0",
+            tokenFactory: "0x17de68f0b56896C604B042daeecF22e1Ea022fe2",
+            swapRouter: "0x76EACb080Bd413F85859C68450eA049ADbA6AEE3",
+            assetManager: "0x5cAF1d5b487fF7D3Da429Caa54446244554db345",
             bnb: "",
             origin: "0x7048FaCAee7Dd8198AC4F7A390d3333741D8aA19",
-            oriSwap: "0x7623c9d6385bae0c8bc24da6862e202bfdddec72",
+            originSymbol: "起源",
         },
         [56]: {
             name: "BNB Smart Chain",
             symbol: "BNB",
             explorerUrl: "https://bscscan.com",
             rpcUrl: "https://silent-few-meme.bsc.quiknode.pro/ee75800d48bd6244538a996a18a836a986e0add9/",
-            readOreContract: "0x9BdAc803A7e2b83821dFc58651B73d3f983DEdD3",
-            oreContract: "0xA1634f0B4417c753944239ea1a6bA5A97Ce0156f",
-            ori: "0xBBF7cc1c4e3A0ed3F0b05C3700322D36ba210101",
-            claimContract: "0x641fD5502c4bE2c4Bd7aA7aCaca0548cbAB319eA",
-            bnb: "0xBB4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
-            origin: "0xe75B8CF742Bb13342688d740C271368412664444",
-            oriSwap: "0x6050c41Fa3395494feb87798CEaBB8840a8D0b67",
+            tokenFactory: "0x17de68f0b56896C604B042daeecF22e1Ea022fe2",
+            swapRouter: "0x76EACb080Bd413F85859C68450eA049ADbA6AEE3",
+            assetManager: "0x5cAF1d5b487fF7D3Da429Caa54446244554db345",
+            bnb: "",
+            origin: "",
+            originSymbol: "起源",
         },
     },
 } as const;
@@ -42,14 +40,6 @@ export const CHAINS_CONFIG = {
 // 导出常用的配置
 export const DEFAULT_CHAIN_ID = CHAINS_CONFIG.DEFAULT_CHAIN.id;
 export const DEFAULT_CHAIN_CONFIG = CHAINS_CONFIG.CHAIN_CONFIG[DEFAULT_CHAIN_ID as keyof typeof CHAINS_CONFIG.CHAIN_CONFIG];
-
-// 合约地址配置
-export const CONTRACT_CONFIG = {
-    // 工厂合约地址 - 用于创建新代币
-    READ_ORE_CONTRACT: CHAINS_CONFIG.CHAIN_CONFIG[DEFAULT_CHAIN_ID as keyof typeof CHAINS_CONFIG.CHAIN_CONFIG].readOreContract,
-    ORE_CONTRACT: CHAINS_CONFIG.CHAIN_CONFIG[DEFAULT_CHAIN_ID as keyof typeof CHAINS_CONFIG.CHAIN_CONFIG].oreContract,
-    CLAIM_CONTRACT: CHAINS_CONFIG.CHAIN_CONFIG[DEFAULT_CHAIN_ID as keyof typeof CHAINS_CONFIG.CHAIN_CONFIG].claimContract,
-} as const;
 
 // Multicall3 合约地址 (通用地址，大多数链都支持)
 export const MULTICALL3_ADDRESS = "0xcA11bde05977b3631167028862bE2a173976CA11";

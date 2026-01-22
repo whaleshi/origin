@@ -1,31 +1,35 @@
 import { BNBIcon } from "@/components/icons";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getMiningGameSwapRecords } from '@/service/api';
+import { getGameTradeRecords } from '@/service/api';
 import { ethers } from 'ethers';
 import _bignumber from 'bignumber.js';
 import { useState, useEffect } from 'react';
 import { useTranslation } from "react-i18next";
 const BigNumber = _bignumber;
-import { useAuthStore } from "@/stores/auth";
+import MyAvatar from "@/components/avatar";
 
+type SwapListProps = {
+	coinInfo?: any | null;
+};
 
-export const SwapList = () => {
+export const SwapList = ({ coinInfo }: SwapListProps) => {
 	const { t } = useTranslation();
 	const [currentPage, setCurrentPage] = useState(1);
 	const pageSize = 10;
 
 	// 合并后的记录查询
 	const { data: miningGameRecords, isLoading } = useQuery({
-		queryKey: ['swapRecords', currentPage],
+		queryKey: ['swapRecords', currentPage, coinInfo?.mint],
 		queryFn: async () => {
 			const params: Record<string, string | number | boolean> = {
+				mining_address: coinInfo?.mint,
 				page: currentPage.toString(),
 				page_size: pageSize.toString(),
 			};
-			const result = await getMiningGameSwapRecords(params);
+			const result = await getGameTradeRecords(params);
 			return result?.data;
 		},
-		enabled: true,
+		enabled: !!coinInfo?.mint,
 		refetchInterval: 10000, // 10秒一次
 	});
 
@@ -42,7 +46,7 @@ export const SwapList = () => {
 					{/* Table Header */}
 					<div className="flex border-b border-dashed border-[#25262A] h-[38px] items-center text-[12px] text-[#868789] px-[12px]">
 						<div className="w-[60px] md:flex-[0.6] shrink-0 text-left">{t('Game.type')}</div>
-						<div className="w-[100px] md:flex-[1] shrink-0 text-right">BNB</div>
+						<div className="w-[100px] md:flex-[1] shrink-0 text-right">起源</div>
 						<div className="w-[100px] flex-[1] shrink-0 text-right">{t('Game.amount')}</div>
 						<div className="w-[120px] flex-[1.2] shrink-0 text-right">{t('Game.time')}</div>
 					</div>
@@ -58,20 +62,21 @@ export const SwapList = () => {
 						) : displayData?.list?.length > 0 ? (
 							displayData.list.map((row: any, index: any) => (
 								<div key={index} className="flex min-h-[38px] items-center text-[12px] hover:bg-[#191B1F] transition-colors cursor-pointer px-[12px] rounded-[8px] py-[2px]">
-									<div className={`w-[60px] md:flex-[0.6] shrink-0 break-words text-left ${row?.side === 0 ? 'text-[#FF5160]' : 'text-[#2ED075]'}`}>
+									<div className={`w-[60px] md:flex-[0.6] shrink-0 break-words text-left ${row?.is_buy === 0 ? 'text-[#FF5160]' : 'text-[#2ED075]'}`}>
 										{
-											row?.side === 0 ? t('Game.sell') : t('Game.buy')
+											row?.is_buy === 0 ? t('Game.sell') : t('Game.buy')
 										}
 									</div>
 									<div className="w-[100px] md:flex-[1] shrink-0 text-[#fff] break-words text-right flex items-center justify-end gap-[4px]">
-										<BNBIcon className="w-[14px] h-[14px] shrink-0" />
-										{BigNumber(ethers.formatUnits(BigInt(row?.side === 0 ? row?.output_amount : row?.input_amount || '0'), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed()}
+										<MyAvatar src="/images/origin.png" alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
+										{BigNumber(ethers.formatUnits(BigInt(row?.is_buy === 0 ? row?.amount_out : row?.amount_in || '0'), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed()}
 									</div>
 									<div className="w-[100px] flex-[1] shrink-0 flex items-center justify-end gap-[4px] min-w-0">
-										{BigNumber(ethers.formatUnits(BigInt(row?.side === 0 ? row?.input_amount : row?.output_amount || '0'), 8)).dp(2, BigNumber.ROUND_DOWN).toFixed()}
+										<MyAvatar src={coinInfo?.image_url} alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
+										{BigNumber(ethers.formatUnits(BigInt(row?.is_buy === 0 ? row?.amount_in : row?.amount_out || '0'), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed()}
 									</div>
 									<div className="w-[120px] flex-[1.2] shrink-0 text-[#fff] text-right text-[11px] leading-tight flex items-center justify-end gap-[4px] min-w-0">
-										{row?.which_timestamp ? new Date(row?.which_timestamp * 1000).toLocaleString() : '-'}
+										{row?.event_timestamp ? new Date(row?.event_timestamp * 1000).toLocaleString() : '-'}
 									</div>
 								</div>
 							))

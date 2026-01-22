@@ -1,75 +1,90 @@
-import { BNBIcon } from "@/components/icons";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getOriGameRecords } from '@/service/api';
+import { getGameRecords } from '@/service/api';
 import { ethers } from 'ethers';
 import _bignumber from 'bignumber.js';
 import { useState, useEffect } from 'react';
 import { useTranslation } from "react-i18next";
 const BigNumber = _bignumber;
 import { useAuthStore } from "@/stores/auth";
-import Image from "next/image";
+import MyAvatar from "@/components/avatar";
 
+type MiningListProps = {
+	coinInfo?: any;
+};
 
-export const MiningList = () => {
+export const MiningList = ({ coinInfo }: MiningListProps) => {
 	const { t } = useTranslation();
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedTab, setSelectedTab] = useState<'my' | 'global'>('my');
 	const pageSize = 10;
 	const queryClient = useQueryClient();
 	const { address } = useAuthStore();
+	const miningAddress = coinInfo?.mint;
+	const userAddr = address ?? "";
 
 	// 合并后的记录查询
-	const { data: oriGameRecords, isLoading } = useQuery({
-		queryKey: ['oriGameRecords', selectedTab, currentPage, address],
+	const { data: gameRecords, isLoading } = useQuery({
+		queryKey: ['gameRecords', selectedTab, currentPage, address, miningAddress],
 		queryFn: async () => {
-			const params: Record<string, string | number | boolean> = {
-				page: currentPage.toString(),
-				page_size: pageSize.toString(),
-				mother_reward_enabled: 0
-			};
-			if (selectedTab === 'my' && address) {
-				params.user_addr = address;
-			}
-			const result = await getOriGameRecords(params);
+			const params: Record<string, string | number | boolean> = selectedTab === 'my'
+				? {
+					mining_address: miningAddress,
+					page: currentPage.toString(),
+					page_size: pageSize.toString(),
+					user_addr: userAddr,
+				}
+				: {
+					page: currentPage.toString(),
+					page_size: pageSize.toString(),
+					mother_reward_enabled: 0,
+					mining_address: miningAddress,
+				};
+			const result = await getGameRecords(params);
 			return result?.data;
 		},
-		enabled: selectedTab === 'global' || (!!address && selectedTab === 'my'),
+		enabled: selectedTab === 'global' ? !!miningAddress : !!address && !!miningAddress,
 		refetchInterval: 10000, // 10秒一次
 	});
 
 	// 预加载下一页数据
 	useEffect(() => {
-		if (oriGameRecords?.total) {
-			const totalPages = Math.ceil(oriGameRecords.total / pageSize);
+		if (gameRecords?.total && miningAddress && (selectedTab === 'global' || address)) {
+			const totalPages = Math.ceil(gameRecords.total / pageSize);
 			const nextPage = currentPage + 1;
 
 			if (nextPage <= totalPages) {
 				queryClient.prefetchQuery({
 					queryKey: [
-						'miningGameRecords',
+						'gameRecords',
 						selectedTab,
 						nextPage,
-						...(selectedTab === 'my' ? [address] : [])
+						...(selectedTab === 'my' ? [address] : []),
+						miningAddress
 					],
 					queryFn: async () => {
-						const params: Record<string, string | number | boolean> = {
-							page: nextPage.toString(),
-							page_size: pageSize.toString(),
-							mother_reward_enabled: 0
-						};
-						if (selectedTab === 'my' && address) {
-							params.user_addr = address;
-						}
-						const result = await getOriGameRecords(params);
+						const params: Record<string, string | number | boolean> = selectedTab === 'my'
+							? {
+								mining_address: miningAddress,
+								page: nextPage.toString(),
+								page_size: pageSize.toString(),
+								user_addr: userAddr,
+							}
+							: {
+								page: nextPage.toString(),
+								page_size: pageSize.toString(),
+								mother_reward_enabled: 0,
+								mining_address: miningAddress,
+							};
+						const result = await getGameRecords(params);
 						return result?.data;
 					},
 				});
 			}
 		}
-	}, [currentPage, oriGameRecords, selectedTab, address, queryClient, pageSize]);
+	}, [currentPage, gameRecords, selectedTab, address, queryClient, pageSize, miningAddress]);
 
 	// 统一数据
-	const displayData = oriGameRecords || { list: [], total: 0 };
+	const displayData = gameRecords || { list: [], total: 0 };
 
 	return (
 		<div className="w-full max-w-[600px] mt-[28px]">
@@ -124,23 +139,23 @@ export const MiningList = () => {
 									<div className="w-[60px] md:flex-[0.6] shrink-0 text-[#fff] break-words text-left">#{row?.show_round_id}</div>
 									<div className={selectedTab != 'global' ? 'w-[100px] md:flex-[1] shrink-0 text-[#fff] break-words text-right flex items-center justify-end gap-[4px]' : 'w-[60px] md:flex-[0.6] shrink-0 text-[#fff] break-words text-right flex items-center justify-end gap-[4px]'}>
 										{
-											selectedTab != 'global' && <BNBIcon className="w-[14px] h-[14px] shrink-0" />
+											selectedTab != 'global' && <MyAvatar src="/images/origin.png" alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
 										}
-										{selectedTab === 'global' ? row?.participant_count : BigNumber(ethers.formatUnits(BigInt(row?.buy_volume || '0'), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed()}
+										{selectedTab === 'global' ? row?.participant_count : BigNumber(ethers.formatUnits(BigInt(row?.buy_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed()}
 									</div>
 									<div className="w-[100px] md:flex-[1] shrink-0 text-[#fff] break-words overflow-hidden text-right flex items-center justify-end gap-[4px]">
-										<BNBIcon className="w-[14px] h-[14px] shrink-0" />
-										{selectedTab === 'global' ? BigNumber(ethers.formatUnits(BigInt(row?.total_buy_volume || '0'), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : BigNumber(ethers.formatUnits(BigInt(row?.sell_volume || '0'), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed()}
+										<MyAvatar src="/images/origin.png" alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
+										{selectedTab === 'global' ? BigNumber(ethers.formatUnits(BigInt(row?.total_buy_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed() : BigNumber(ethers.formatUnits(BigInt(row?.sell_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed()}
 									</div>
 									<div className="w-[100px] md:flex-[1] shrink-0 text-[#fff] break-words text-right flex items-center justify-end gap-[4px]">
-										<BNBIcon className="w-[14px] h-[14px] shrink-0" />
-										{selectedTab === 'global' ? BigNumber(ethers.formatUnits(BigInt(row?.total_sell_volume || '0'), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : BigNumber(ethers.formatUnits(BigInt(row?.total_trade_volume || '0'), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed()}
+										<MyAvatar src="/images/origin.png" alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
+										{selectedTab === 'global' ? BigNumber(ethers.formatUnits(BigInt(row?.total_sell_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed() : BigNumber(ethers.formatUnits(BigInt(row?.net_buy_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed()}
 									</div>
 									<div className="w-[100px] md:flex-[1] shrink-0 flex items-center justify-end gap-[4px] min-w-0">
 										{
-											selectedTab != 'global' ? <Image src="/images/logos.png" alt="logo" className="shrink-0" width={14} height={14} /> : <BNBIcon className="w-[14px] h-[14px] shrink-0" />
+											selectedTab != 'global' ? <MyAvatar src={coinInfo?.image_url} alt="icon" className="w-[14px] h-[14px] bg-[transparent] grayscale" /> : <MyAvatar src="/images/origin.png" alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
 										}
-										{selectedTab === 'global' ? BigNumber(ethers.formatUnits(BigInt(row?.total_trade_volume || '0'), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : BigNumber(ethers.formatUnits(BigInt(row?.normal_reward_amount || '0'), 8)).plus(ethers.formatUnits(BigInt(row?.mother_reward_amount || '0'), 8)).dp(2, BigNumber.ROUND_DOWN).toFixed()}
+										{selectedTab === 'global' ? BigNumber(ethers.formatUnits(BigInt(row?.total_trade_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed() : BigNumber(ethers.formatUnits(BigInt(row?.normal_reward_amount || '0'), 8)).plus(ethers.formatUnits(BigInt(row?.mother_reward_amount || '0'), 8)).dp(2, BigNumber.ROUND_DOWN).toFixed()}
 									</div>
 									<div className="w-[120px] md:flex-[1.2] shrink-0 text-[#fff] text-right text-[11px] leading-tight">{row?.created_ts ? new Date(row?.created_ts * 1000).toLocaleString() : '-'}</div>
 								</div>

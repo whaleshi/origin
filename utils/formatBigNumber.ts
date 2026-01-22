@@ -70,6 +70,7 @@ export function formatBigNumber(value: string | number | BigNumber | bigint, opt
     } catch {
         return "0";
     }
+    if (!bigValue.isFinite()) return "0";
 
     const isNegative = bigValue.isNegative();
     bigValue = bigValue.abs();
@@ -99,42 +100,20 @@ export function formatBigNumber(value: string | number | BigNumber | bigint, opt
         const thousand = new BigNumber(1e3);
         const maxSupported = quadrillion.multipliedBy(999); // 999Q
 
+        const formatCompact = (divisor: BigNumber, suffix: string) => {
+            const val = bigValue.dividedBy(divisor).decimalPlaces(precision, BigNumber.ROUND_DOWN);
+            const formatted = trimTrailingZero ? val.toString() : val.toFixed(precision);
+            return (isNegative ? "-" : "") + formatted + suffix;
+        };
+
         if (bigValue.gt(maxSupported)) {
             return (isNegative ? "-" : "") + "> 999Q";
         }
-
-        if (bigValue.gte(quadrillion)) {
-            let val = bigValue.dividedBy(quadrillion).decimalPlaces(precision, BigNumber.ROUND_DOWN);
-            let formatted = val.toString();
-            if (trimTrailingZero) formatted = new BigNumber(formatted).toString();
-            return (isNegative ? "-" : "") + formatted + "Q";
-        }
-
-        if (bigValue.gte(trillion)) {
-            let val = bigValue.dividedBy(trillion).decimalPlaces(precision, BigNumber.ROUND_DOWN);
-            let formatted = val.toString();
-            if (trimTrailingZero) formatted = new BigNumber(formatted).toString();
-            return (isNegative ? "-" : "") + formatted + "T";
-        }
-
-        if (bigValue.gte(billion)) {
-            let val = bigValue.dividedBy(billion).decimalPlaces(precision, BigNumber.ROUND_DOWN);
-            let formatted = val.toString();
-            if (trimTrailingZero) formatted = new BigNumber(formatted).toString();
-            return (isNegative ? "-" : "") + formatted + "B";
-        }
-        if (bigValue.gte(million)) {
-            let val = bigValue.dividedBy(million).decimalPlaces(precision, BigNumber.ROUND_DOWN);
-            let formatted = val.toString();
-            if (trimTrailingZero) formatted = new BigNumber(formatted).toString();
-            return (isNegative ? "-" : "") + formatted + "M";
-        }
-        if (bigValue.gte(thousand)) {
-            let val = bigValue.dividedBy(thousand).decimalPlaces(precision, BigNumber.ROUND_DOWN);
-            let formatted = val.toString();
-            if (trimTrailingZero) formatted = new BigNumber(formatted).toString();
-            return (isNegative ? "-" : "") + formatted + "K";
-        }
+        if (bigValue.gte(quadrillion)) return formatCompact(quadrillion, "Q");
+        if (bigValue.gte(trillion)) return formatCompact(trillion, "T");
+        if (bigValue.gte(billion)) return formatCompact(billion, "B");
+        if (bigValue.gte(million)) return formatCompact(million, "M");
+        if (bigValue.gte(thousand)) return formatCompact(thousand, "K");
     }
 
     const SUBSCRIPT_THRESHOLD = new BigNumber(0.001);
@@ -146,8 +125,9 @@ export function formatBigNumber(value: string | number | BigNumber | bigint, opt
         }
         if (withComma) {
             const [intPart, decPart] = fixed.split(".");
-            const withThousands = decPart ? Number(intPart).toLocaleString() + "." + decPart : Number(intPart).toLocaleString();
-            return isNegative ? "-" + withThousands : withThousands;
+            const withThousands = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            const withDecimals = decPart ? withThousands + "." + decPart : withThousands;
+            return isNegative ? "-" + withDecimals : withDecimals;
         }
         return isNegative ? "-" + fixed : fixed;
     } else {
@@ -156,7 +136,7 @@ export function formatBigNumber(value: string | number | BigNumber | bigint, opt
         const match = decimalPart.match(/^(0*)(\d+)/);
         if (match) {
             const zeroCount = match[1].length;
-            let digits = match[2].slice(0, 2).replace(/0+$/, "");
+            let digits = match[2].slice(0, 4).replace(/0+$/, "");
             if (!digits) return "0";
             const formatted =
                 mode === "subscript"

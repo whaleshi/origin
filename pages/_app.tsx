@@ -152,7 +152,7 @@ export default function App({ Component, pageProps }: AppProps) {
 					</WagmiProvider>
 				) : (
 					<div className="flex items-center justify-center h-screen w-screen bg-[#0D0F13]">
-						<img src="/images/logo.png" alt="Loading" className="w-[60px] h-[60px]" />
+						<img src="/images/loading.gif" alt="Loading" className="w-[48px] h-[48px]" />
 					</div>
 				)
 			}

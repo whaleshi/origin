@@ -1,12 +1,29 @@
-import { Button, Form, Input, Textarea, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from "@heroui/react";
+import { Button, Form, Input, Textarea } from "@heroui/react";
 import { useEffect, useMemo, useState } from "react";
-import { AddIcon, CloseIcon, CopyIcon } from "./icons";
-import MyAvatar from "@/components/avatar";
+import { AddIcon } from "./icons";
+import pinFileToIPFS from "@/utils/pinata";
+import TokenFactoryAbi from "@/constant/TokenFactory.json";
+import { CHAINS_CONFIG, DEFAULT_CHAIN_ID } from "@/config/chains";
+import { useChainId, usePublicClient, useWriteContract } from "wagmi";
+import { getLuckyToken } from "@/service/api";
+import { decodeEventLog } from "viem";
+import BigNumber from "bignumber.js";
+import { showErrorToast, showLoadingToast } from "@/utils/toastHelpers";
 
 const MAX_AVATAR_MB = 5;
 const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 
-export default function CreateForm() {
+type CreateFormProps = {
+	onCreateSuccess?: (payload: {
+		name: string;
+		symbol: string;
+		avatar: string;
+		address?: string;
+		hash?: `0x${string}`;
+	}) => void;
+};
+
+export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 
 	const [nameVal, setNameVal] = useState("");
 	const [tickerVal, setTickerVal] = useState("");
@@ -20,8 +37,13 @@ export default function CreateForm() {
 	const [avatarFile, setAvatarFile] = useState<File | null>(null);
 	const [avatarPreview, setAvatarPreview] = useState<string>("");
 	const [avatarError, setAvatarError] = useState<string | null>(null);
+	const [uploadLoading, setUploadLoading] = useState(false);
+	const [ipfsHash, setIpfsHash] = useState<string | null>(null);
+	const [createLoading, setCreateLoading] = useState(false);
 
-	const { isOpen, onOpen, onOpenChange } = useDisclosure();
+	const chainId = useChainId();
+	const { writeContractAsync, isPending: isCreatePending } = useWriteContract();
+	const publicClient = usePublicClient({ chainId: chainId ?? DEFAULT_CHAIN_ID });
 
 	useEffect(() => {
 		if (!avatarFile) {
@@ -49,11 +71,122 @@ export default function CreateForm() {
 	const isValid = Object.keys(errors).length === 0;
 	const avatarValid = !!avatarFile && !errors.avatar;
 
+	const parseAmountWei = (value: string) => {
+		if (!value) return 0n;
+		const bn = new BigNumber(value);
+		if (!bn.isFinite() || bn.lte(0)) return 0n;
+		const scaled = bn.multipliedBy(new BigNumber(10).pow(18)).integerValue(BigNumber.ROUND_DOWN);
+		return BigInt(scaled.toFixed(0));
+	};
+
+	const uploadFile = async () => {
+		try {
+			const params = {
+				name: nameVal,
+				symbol: tickerVal,
+				image: ipfsHash,
+				description: descriptionVal,
+				website: websiteVal,
+				x: xVal,
+				telegram: telegramVal,
+			};
+			const res = await pinFileToIPFS(params, "json");
+			if (!res) {
+				showErrorToast("上传失败");
+				return false;
+			}
+			return res;
+		} catch (error) {
+			showErrorToast("上传失败");
+			return false;
+		}
+	};
+
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		onOpen()
 		e.preventDefault();
 		setSubmitted(true);
 		if (!isValid) return;
+		setCreateLoading(true);
+		try {
+			showLoadingToast("创建中", "请在钱包内确认交易");
+			const uploadResult = await uploadFile();
+			if (!uploadResult) {
+				return;
+			}
+
+			const activeChainId = chainId ?? DEFAULT_CHAIN_ID;
+			const tokenFactoryAddress =
+				CHAINS_CONFIG.CHAIN_CONFIG[activeChainId as keyof typeof CHAINS_CONFIG.CHAIN_CONFIG]?.tokenFactory;
+			if (!tokenFactoryAddress) {
+				console.error("TokenFactory address not configured for chain:", activeChainId);
+				showErrorToast("创建失败");
+				return;
+			}
+			let salt = "";
+			try {
+				const res = await getLuckyToken();
+				salt = res?.data?.salt ?? "";
+			} catch (error) {
+				console.error("getLuckyToken error:", error);
+				showErrorToast("创建失败");
+				return;
+			}
+			if (!salt) {
+				console.error("getLuckyToken missing salt");
+				showErrorToast("创建失败");
+				return;
+			}
+			const amountWei = parseAmountWei(amountVal);
+			const hasPreBuy = amountWei > 0n;
+			const hash = await writeContractAsync({
+				address: tokenFactoryAddress as `0x${string}`,
+				abi: TokenFactoryAbi,
+				functionName: hasPreBuy ? "createTokenAndBuy" : "createToken",
+				args: hasPreBuy
+					? [nameVal.trim(), tickerVal.trim(), uploadResult, salt, amountWei]
+					: [nameVal.trim(), tickerVal.trim(), uploadResult, salt],
+				value: hasPreBuy ? amountWei : undefined,
+				chainId: activeChainId,
+			});
+			let createdAddress: string | undefined;
+			if (publicClient && hash) {
+				const receipt = await publicClient.waitForTransactionReceipt({ hash });
+				if (receipt.status !== "success") {
+					showErrorToast("创建失败");
+					return;
+				}
+				for (const log of receipt.logs) {
+					try {
+						const decoded = decodeEventLog({
+							abi: TokenFactoryAbi,
+							data: log.data,
+							topics: log.topics,
+						});
+						if (decoded.eventName === "CreateToken") {
+							const token = (decoded.args as { token?: string }).token;
+							if (token) {
+								createdAddress = token;
+								break;
+							}
+						}
+					} catch {
+						// ignore non-matching logs
+					}
+				}
+			}
+			onCreateSuccess?.({
+				name: nameVal.trim(),
+				symbol: tickerVal.trim(),
+				avatar: ipfsHash || avatarPreview || "/images/default.png",
+				address: createdAddress,
+				hash,
+			});
+		} catch (error) {
+			console.error("createToken error:", error);
+			showErrorToast("创建失败");
+		} finally {
+			setCreateLoading(false);
+		}
 	}
 
 	return (
@@ -65,39 +198,52 @@ export default function CreateForm() {
 					</div>
 					<div className="flex items-center gap-[12px]">
 						<label
-							className={`w-[80px] h-[80px] rounded-full border-[1px] bg-[#191B1F] overflow-hidden flex items-center justify-center cursor-pointer ${submitted && errors.avatar ? "border-[#FF5160]" : "border-[#25262A]"
+							className={`relative w-[80px] h-[80px] rounded-full border-[1px] bg-[#191B1F] overflow-hidden flex items-center justify-center cursor-pointer ${submitted && errors.avatar ? "border-[#FF5160]" : "border-[#25262A]"
 								}`}
 						>
 							<input
 								type="file"
 								accept={ACCEPTED_TYPES.join(",")}
 								className="hidden"
-								onChange={(e) => {
+								onChange={async (e) => {
 									const file = e.target.files?.[0] ?? null;
-									if (!file) {
-										setAvatarFile(null);
-										setAvatarError("请上传头像");
-										return;
-									}
+									if (!file) return;
+
 									if (!ACCEPTED_TYPES.includes(file.type)) {
-										setAvatarFile(null);
-										setAvatarError("仅支持 png/jpg/webp/gif");
 										return;
 									}
 									const sizeMB = file.size / (1024 * 1024);
 									if (sizeMB > MAX_AVATAR_MB) {
-										setAvatarFile(null);
-										setAvatarError(`头像大小需小于 ${MAX_AVATAR_MB}MB`);
 										return;
 									}
-									setAvatarError(null);
-									setAvatarFile(file);
+									try {
+										setUploadLoading(true);
+										const res = await pinFileToIPFS(file);
+										if (res) {
+											setIpfsHash(res);
+											setAvatarFile(file);
+										} else {
+											// toast.error(t("Toast.text1"));
+											// avatarFieldRef.current?.clearFileInput();
+										}
+									} catch (error) {
+										console.error("IPFS upload error:", error);
+										// toast.error(t("Toast.text1"));
+										// avatarFieldRef.current?.clearFileInput();
+									} finally {
+										setUploadLoading(false);
+									}
 								}}
 							/>
 							{avatarPreview ? (
 								<img src={avatarPreview} alt="avatar preview" className="w-full h-full object-cover" />
 							) : (
 								<AddIcon />
+							)}
+							{uploadLoading && (
+								<div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+									<div className="w-6 h-6 border-2 border-[#fd7438] border-t-transparent rounded-full animate-spin" />
+								</div>
 							)}
 						</label>
 					</div>
@@ -119,7 +265,7 @@ export default function CreateForm() {
 					variant="bordered"
 					value={nameVal}
 					onChange={(e) => setNameVal(e.target.value)}
-					maxLength={20}
+					maxLength={30}
 					isInvalid={submitted && !!errors.name}
 				/>
 				<Input
@@ -135,8 +281,8 @@ export default function CreateForm() {
 					placeholder="输入代币符号"
 					variant="bordered"
 					value={tickerVal}
-					onChange={(e) => setTickerVal(e.target.value.toUpperCase().replace(/\s+/g, ""))}
-					maxLength={10}
+					onChange={(e) => setTickerVal(e.target.value)}
+					maxLength={30}
 					isInvalid={submitted && !!errors.ticker}
 				/>
 				<Textarea
@@ -262,51 +408,14 @@ export default function CreateForm() {
 				<div className="flex-1"></div>
 				<Button
 					type="submit"
-					isDisabled={!isValid}
+					isDisabled={!isValid || isCreatePending || createLoading}
+					isLoading={isCreatePending || createLoading}
 					className={`w-full mt-[12px] rounded-[8px] h-[48px] text-[15px] disabled:opacity-60 ${avatarValid ? "bg-[#FD7438] text-[#fff]" : "bg-[#36383B] text-[#868789]"
 						}`}
 				>
 					提交
 				</Button>
 			</Form>
-			<Modal
-				isOpen={isOpen}
-				onOpenChange={onOpenChange}
-				size="md"
-				hideCloseButton
-				placement="bottom-center"
-				classNames={{
-					backdrop: "bg-black/80",
-					base: "bg-[#191B1F] border-[1px] border-[#303135] rounded-[0px] rounded-t-[12px] md:rounded-[12px] mx-0 md:mx-4 mb-0 md:my-auto",
-					wrapper: "items-end md:items-center",
-					header: "border-none pb-0",
-					body: "p-0"
-				}}
-			>
-				<ModalContent className="relative overflow-visible">
-					<div
-						className="absolute left-1/2 -translate-x-1/2 -translate-y-[calc(100%-10px)] top-0 z-10"
-						style={{ width: `${(343 / 375) * 100}%`, aspectRatio: '343/124' }}
-					>
-					</div>
-					<ModalHeader className="flex justify-center items-center p-0 relative h-[48px] mt-[8px]">
-						<div className="flex text-[17px]">
-							创建成功
-						</div>
-						<button className="absolute right-[16px] top-1/2 transform -translate-y-1/2 hover:opacity-70 transition-opacity cursor-pointer" onClick={onOpenChange}>
-							<CloseIcon />
-						</button>
-					</ModalHeader>
-					<ModalBody className="px-[14px] pb-[20px] gap-0 items-center">
-						<MyAvatar src={"/images/test.png"} alt="icon" className="w-[80px] h-[80px] bg-[transparent]" />
-						<div className="text-[17px] text-[#fff] font-bold">boz</div>
-						<div className="text-[13px] text-[#67646B]">FuzzCoin</div>
-						<div className="h-[28px] bg-[#25262A] rounded-full text-[11px] text-[#868789] flex items-center px-[12px] gap-[4px]">0x1234...5678<CopyIcon /></div>
-						<Button fullWidth className="mt-[24px] h-[44px] bg-[#25262A] rounded-[8px] text-[15px] text-[#fff]">查看详情</Button>
-						<Button fullWidth className="mt-[12px] h-[44px] bg-[#FD7438] rounded-[8px] text-[15px] text-[#fff]">分享到 X</Button>
-					</ModalBody>
-				</ModalContent>
-			</Modal>
 		</div>
 	);
 }

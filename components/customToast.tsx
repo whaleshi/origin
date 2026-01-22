@@ -95,7 +95,7 @@ function Toast(props: ToastProps) {
   };
 
   return (
-    <div className={`flex items-center justify-between rounded-[8px] w-full md:min-w-[375px] text-white font-sans text-[16px] gap-[16px] py-[12px] px-[16px] ${getToastStyle()}`}>
+    <div className={`flex items-center justify-between rounded-[8px] w-[calc(100vw-32px)] md:w-auto md:min-w-[375px] mx-auto md:relative md:left-1/2 md:-translate-x-1/2 text-white font-sans text-[16px] gap-[16px] py-[12px] px-[16px] ${getToastStyle()}`}>
       {/* Left side: Icon + Content */}
       <div className="flex items-center gap-[12px] flex-1">
         {getToastIcon()}

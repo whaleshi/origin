@@ -4,13 +4,13 @@ import MyAvatar from "@/components/avatar";
 import MiningAbout from "./miningAbout";
 import MiningRewards from "./miningRewards";
 import { MiningList } from "./miningList";
-
 type MiningDialogProps = {
 	isOpen: boolean;
 	onOpenChange: (open: boolean) => void;
+	coinInfo?: any;
 };
 
-export default function MiningDialog({ isOpen, onOpenChange }: MiningDialogProps) {
+export default function MiningDialog({ isOpen, onOpenChange, coinInfo }: MiningDialogProps) {
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -41,9 +41,9 @@ export default function MiningDialog({ isOpen, onOpenChange }: MiningDialogProps
 					</button>
 				</ModalHeader>
 				<ModalBody className="w-full p-[14px] pb-[20px] gap-0 items-center max-h-[65vh] overflow-y-auto flex flex-col">
-					<div className="w-full"><MiningAbout /></div>
-					<div className="mt-[24px] w-full"><MiningRewards /></div>
-					<MiningList />
+					<div className="w-full"><MiningAbout coinInfo={coinInfo} /></div>
+					<div className="mt-[24px] w-full"><MiningRewards coinInfo={coinInfo} /></div>
+					<MiningList coinInfo={coinInfo} />
 				</ModalBody>
 			</ModalContent>
 		</Modal>

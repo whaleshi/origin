@@ -1,7 +1,13 @@
 import Marquee from "react-fast-marquee";
 import MyAvatar from "@/components/avatar";
+import { getSwapList } from "@/service/api";
+import { useQuery } from "@tanstack/react-query";
+import BigNumber from "bignumber.js";
+import { DEFAULT_CHAIN_CONFIG } from "@/config/chains";
+import { useRouter } from "next/router";
 
 export default function TopScroll() {
+	const router = useRouter();
 	const colorSchemes = [
 		{ bg: '#EC42FF33', text: '#EC42FF' },
 		{ bg: '#FF536133', text: '#FF5361' },
@@ -11,19 +17,68 @@ export default function TopScroll() {
 		{ bg: '#6655FF33', text: '#6655FF' },
 	];
 
-	const transactions = [
-		{ id: 1, address: '0x1234...1234', type: '卖出', amount: '0.18 BNB', token: 'Launchcoin' },
-		{ id: 2, address: '0x1234...1234', type: '卖出', amount: '0.18 BNB', token: 'Launchcoin' },
-		{ id: 3, address: '0x1234...1234', type: '卖出', amount: '0.18 BNB', token: 'Launchcoin' },
-		{ id: 4, address: '0x1234...1234', type: '买入', amount: '0.18 BNB', token: 'Launchcoin' },
-		{ id: 5, address: '0x1234...1234', type: '买入', amount: '0.18 BNB', token: 'Launchcoin' },
-		{ id: 6, address: '0x1234...1234', type: '买入', amount: '0.18 BNB', token: 'Launchcoin' },
-		{ id: 7, address: '0x1234...1234', type: '卖出', amount: '0.18 BNB', token: 'Launchcoin' },
-		{ id: 8, address: '0x1234...1234', type: '卖出', amount: '0.18 BNB', token: 'Launchcoin' },
-		{ id: 9, address: '0x1234...1234', type: '买入', amount: '0.18 BNB', token: 'Launchcoin' },
-		{ id: 10, address: '0x1234...1234', type: '买入', amount: '0.18 BNB', token: 'Launchcoin' },
-		{ id: 11, address: '0x1234...1234', type: '买入', amount: '0.18 BNB', token: 'Launchcoin' },
-	];
+	const { data: swapList } = useQuery({
+		queryKey: ['swapList'],
+		queryFn: async () => {
+			const params = {
+				page: "1",
+				page_size: "10",
+			};
+			const result = await getSwapList(params);
+			return result?.data;
+		},
+		refetchInterval: 3000,
+	});
+
+	const normalizeList = (data: any) => {
+		if (Array.isArray(data?.list)) return data.list;
+		if (Array.isArray(data)) return data;
+		return [];
+	};
+
+	const formatAddress = (value: any) => {
+		const text = String(value);
+		if (text.length <= 10) return text;
+		return `${text.slice(0, 6)}...${text.slice(-4)}`;
+	};
+
+	const formatAmount = (value: any, unit?: any) => {
+		if (value === null || value === undefined || value === "") return unit ? `0 ${unit}` : "0";
+		const raw = String(value).replace(/,/g, "").trim();
+		if (!raw) return unit ? `0 ${unit}` : "0";
+		const bn = new BigNumber(raw);
+		if (!bn.isFinite()) return unit ? `0 ${unit}` : "0";
+		const scaled = bn.dividedBy(new BigNumber(10).pow(8));
+		const formatted = scaled.decimalPlaces(4, BigNumber.ROUND_DOWN).toFixed(4);
+		const trimmed = new BigNumber(formatted).toString();
+		return unit ? `${trimmed} ${unit}` : trimmed;
+	};
+
+	const formatToken = (value: any) => {
+		const text = String(value ?? "");
+		if (text.length <= 10) return text;
+		return `${text.slice(0, 10)}...`;
+	};
+
+	const getAddressUrl = (address: any) => {
+		const base = DEFAULT_CHAIN_CONFIG?.explorerUrl;
+		if (!base || !address) return "";
+		return `${base}/address/${address}`;
+	};
+
+	const transactions = (() => {
+		const list = normalizeList(swapList);
+		return list.map((item: any, index: number) => ({
+			id: item?.id ?? item?.swap_id ?? index,
+			address: formatAddress(item?.user),
+			rawAddress: item?.user,
+			type: item?.is_buy ? '买入' : '卖出',
+			amount: formatAmount(item?.is_buy ? item?.input_amount : item?.output_amount, 'BNB'),
+			token: formatToken(item?.is_buy ? item?.output_symbol : item?.input_symbol),
+			mint: item?.is_buy ? item?.base_token : item?.quote_token,
+			img: item?.is_buy ? item?.output_logo : item?.input_logo,
+		}));
+	})();
 
 	return (
 		<div className="w-full bg-transparent">
@@ -34,7 +89,7 @@ export default function TopScroll() {
 				gradientWidth={50}   // 渐变宽度
 				pauseOnHover={true}  // 鼠标悬停暂停
 			>
-				{transactions.map((tx, index) => {
+				{transactions.map((tx: any, index: any) => {
 					const colorScheme = colorSchemes[index % colorSchemes.length];
 					return (
 						<div
@@ -46,10 +101,26 @@ export default function TopScroll() {
 								backdropFilter: 'blur(2px)'
 							}}
 						>
-							<span className="underline cursor-pointer">{tx.address}</span>
+							<a
+								href={getAddressUrl(tx.rawAddress)}
+								target="_blank"
+								rel="noreferrer"
+								className="underline cursor-pointer"
+							>
+								{tx.address}
+							</a>
 							<span className="">{tx.type} {tx.amount}</span>
-							<MyAvatar src={"/images/common/default.png"} alt="avatar" className="w-[14px] h-[14px]" />
-							<span className="underline cursor-pointer">{tx.token}</span>
+							<MyAvatar src={tx.img || '/images/common/default.png'} alt="avatar" className="w-[14px] h-[14px]" />
+							<span
+								className={`underline ${tx.mint ? "cursor-pointer" : "cursor-default"}`}
+								onClick={() => {
+									if (tx.mint) {
+										router.push(`/token/${tx.mint}`);
+									}
+								}}
+							>
+								{tx.token}
+							</span>
 						</div>
 					);
 				})}

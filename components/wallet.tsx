@@ -10,7 +10,7 @@ import router from "next/router";
 import { bsc } from "wagmi/chains";
 
 export const WalletBox = () => {
-	const { balance, symbol, originInfoData } = useBalanceContext();
+	const { balance, symbol } = useBalanceContext();
 	const { logout } = usePrivy();
 	const { fundWallet } = useFundWallet();
 	const { address, clearAuthState } = useAuthStore();

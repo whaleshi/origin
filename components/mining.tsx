@@ -5,31 +5,47 @@ import MiningTrade from "./miningTrade";
 import MiningRewards from "./miningRewards";
 import MiningAbout from "./miningAbout";
 import { MiningList } from "./miningList";
+import ScrollingName from "./scrollingName";
+import { formatBigNumber } from "@/utils/formatBigNumber";
+import { formatPercent, getPercentClass } from "@/utils/number";
+import { SwapList } from "./swapList";
 
-export default function Mining() {
+type MiningProps = {
+	coinInfo?: any;
+};
 
-	// return <div className="flex flex-col items-center pt-[200px]">
-	// 	<Image src="/images/mining.png" alt="Mining" disableAnimation disableSkeleton className="w-[80px] h-[80px]" />
-	// 	<div className="text-[14px] text-[#868789]">挖矿待激活</div>
-	// </div>
+export default function Mining({ coinInfo }: MiningProps) {
+	const changeValue = coinInfo?.price_change_24h_f ?? coinInfo?.price_change_24h ?? coinInfo?.change_24h;
+	const displayChange = formatPercent(changeValue, "0.00%");
+	const changeClass = getPercentClass(changeValue);
+
+	if (coinInfo?.is_refine === 0) {
+		return <div className="flex flex-col items-center pt-[200px]">
+			<Image src="/images/mining.png" alt="Mining" disableAnimation disableSkeleton className="w-[80px] h-[80px]" />
+			<div className="text-[14px] text-[#868789]">挖矿待激活</div>
+		</div>
+	}
 
 	return <div className="w-full max-w-[600px]">
 		<div className="mt-[20px] flex items-center rounded-[12px] p-[12px] spin-border">
-			<MyAvatar src={"/images/test.png"} alt="icon" className="w-[48px] h-[48px] bg-[transparent]" />
-			<div className='h-[48px] flex flex-col justify-between ml-[8px]'>
-				<div className='text-[17px] text-[#fff] font-semibold'>launchcoin</div>
-				<div className='text-[13px] text-[#8D8B90]'>Launchcoin</div>
+			<MyAvatar src={coinInfo?.image_url || "/images/default.png"} alt="icon" className="w-[48px] h-[48px] bg-[transparent]" />
+			<div className='h-[48px] flex flex-col justify-between ml-[8px] min-w-0 flex-1'>
+				<ScrollingName text={coinInfo?.name ?? "--"} className="text-[17px] text-[#fff] font-semibold pr-[20px]" />
+				<div className='text-[13px] text-[#8D8B90] truncate'>{coinInfo?.symbol ?? "--"}</div>
 			</div>
 			<div className='h-[48px] flex flex-col justify-between items-end ml-auto'>
-				<div className="text-[17px] text-[#fff] font-semibold">$0.0743</div>
-				<div className="text-[13px] text-[#4A4B4E]">24H<span className="ml-[2px] text-[#17C964]">14.39%</span></div>
+				<div className="text-[17px] text-[#fff] font-semibold">${formatBigNumber(coinInfo?.price_usd_f)}</div>
+				<div className="text-[13px] text-[#4A4B4E]">
+					24H<span className={`ml-[2px] ${changeClass}`}>{displayChange}</span>
+				</div>
 				{/* text-[#FF5160] */}
 			</div>
 			<BottomTokenIcon className="cursor-pointer ml-[12px]" />
 		</div>
-		<div className="my-[12px]"><MiningAbout /></div>
-		<div><MiningTrade /></div>
-		<div className="mt-[24px]"><MiningRewards /></div>
-		<div><MiningList /></div>
+		<div className="my-[12px]"><MiningAbout coinInfo={coinInfo} /></div>
+		<div><MiningTrade coinInfo={coinInfo} /></div>
+		<div className="mt-[24px]"><MiningRewards coinInfo={coinInfo} /></div>
+		<div><MiningList coinInfo={coinInfo} /></div>
+		<div className="mt-[20px]"><SwapList coinInfo={coinInfo} /></div>
 	</div>;
 }

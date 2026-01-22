@@ -19,14 +19,14 @@ export default function GamePage() {
                 <div className="w-full h-[200px] md:w-[640px] md:h-[320px] mx-auto relative">
                     <AHoleEffect />
                     <div className="w-full h-full absolute top-0 z-11 flex flex-col items-center justify-center">
-                        <div className="text-[24px] md:text-[32px] font-bold">让 MEME 的诞生回归<span className="text-[#FD7438]">起源</span></div>
-                        <div className="text-[14px] md:text-[15px] mt-[16px] md:mt-[24px]">运行机制→</div>
+                        <div className="text-[24px] md:text-[32px] font-bold text-[#fff]">让 MEME 的诞生回归<span className="text-[#FD7438]"> 起源</span></div>
+                        <div className="text-[14px] md:text-[15px] mt-[16px] md:mt-[24px] text-[#fff]">运行机制→</div>
                     </div>
                     <div className="absolute bottom-0 w-full h-[80px] md:h-[180px] z-10 block md:hidden"
                         style={{ background: 'linear-gradient(180deg, rgba(16, 12, 21, 0.00) 0%, #100C15 100%)' }}
                     ></div>
                 </div>
-                <div className="absolute top-[8px] w-full z-10">
+                <div className="absolute top-[8px] w-full z-11">
                     <TopScroll />
                 </div>
             </div>

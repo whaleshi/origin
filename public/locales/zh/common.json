@@ -3,5 +3,28 @@
         "zh": "中文",
         "en": "英文",
         "label": "语言"
+    },
+    "Game": {
+        "miningRecords": "挖矿记录",
+        "my": "我的",
+        "global": "全局",
+        "round": "轮次",
+        "player": "玩家",
+        "buy": "买入",
+        "sell": "卖出",
+        "netBuys": "交易量",
+        "reward": "奖励",
+        "time": "时间",
+        "tradeRecords": "交易记录",
+        "type": "类型",
+        "amount": "数量",
+        "noRecordsFound": "未找到记录"
+    },
+    "Explore": {
+        "noRecordsFound": "未找到记录"
+    },
+    "Common": {
+        "copySuccess": "复制成功",
+        "copyFailed": "复制失败"
     }
 }

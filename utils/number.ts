@@ -80,3 +80,32 @@ export const numToString = (num: any) => {
     const m = num.toExponential().match(/\d(?:\.(\d*))?e([+-]\d+)/);
     return num.toFixed(Math.max(0, (m[1] || "").length - m[2]));
 };
+
+export const format8 = (value: any) => {
+    const bn = new BigNumber(value ?? 0);
+    return bn
+        .dividedBy(new BigNumber(10).pow(8))
+        .decimalPlaces(4, BigNumber.ROUND_DOWN)
+        .toString();
+};
+
+export const formatPercent = (value: number | string | null | undefined, fallback: string) => {
+    if (value === null || value === undefined) return fallback;
+    const raw = String(value).replace("%", "").trim();
+    if (!raw) return fallback;
+    const bn = new BigNumber(raw);
+    if (!bn.isFinite()) return fallback;
+    const formatted = bn.decimalPlaces(2, BigNumber.ROUND_DOWN).toFixed(2);
+    return `${formatted}%`;
+};
+
+export const getPercentClass = (value: number | string | null | undefined) => {
+    if (value === null || value === undefined) return "text-[#868789]";
+    const raw = String(value).replace("%", "").trim();
+    if (!raw) return "text-[#868789]";
+    const bn = new BigNumber(raw);
+    if (!bn.isFinite()) return "text-[#868789]";
+    const rounded = bn.decimalPlaces(2, BigNumber.ROUND_DOWN);
+    if (rounded.isZero()) return "text-[#868789]";
+    return bn.isNegative() ? "text-[#FF5160]" : "text-[#17C964]";
+};

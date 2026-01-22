@@ -9,22 +9,17 @@ import { useAuthStore } from "@/stores/auth";
 import { shortenAddress, useIsMobile } from "@/utils";
 import { useTranslation } from 'react-i18next';
 import { useBalanceContext } from "@/providers/balanceProvider";
+import { useQuery } from "@tanstack/react-query";
+import { getCoinList } from "@/service/api";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
-import { LogoIcon, TextIcon, MenuIcon, LangIcon, HeaderXIcon, HeaderTgIcon, SearchInputIcon } from "@/components/icons";
+import { LogoIcon, TextIcon, MenuIcon, LangIcon, HeaderXIcon, HeaderTgIcon, SearchInputIcon, WalletIcon } from "@/components/icons";
 import { siteConfig } from "@/config/site";
 import { DEFAULT_CHAIN_CONFIG } from "@/config/chains";
-import { formatBigNumber } from '@/utils/formatBigNumber';
 import CreateDialog from "./createDialog";
-import TokenItem from "./tokenItem";
+import TokenItem, { TokenItemSkeleton } from "./tokenItem";
 import { WalletBox } from "./wallet";
 import MeList from "./meList";
-
-const SEARCH_TOKENS = [
-	{ name: "Launchcoin", symbol: "LAUNCH", address: "0x1234567890abcdef1234567890abcdef12345678", price: "$0.0743", change: "+14.39%" },
-	{ name: "Origin", symbol: "ORI", address: "0xabcdef1234567890abcdef1234567890abcdef12", price: "$0.0219", change: "-3.12%" },
-	{ name: "Refin", symbol: "RFI", address: "0x9876543210abcdef9876543210abcdef98765432", price: "$0.1120", change: "+2.58%" },
-	{ name: "Mood", symbol: "MOOD", address: "0xa1b2c3d4e5f6a7b8c9d0a1b2c3d4e5f6a7b8c9d0", price: "$0.0084", change: "+0.92%" },
-];
 
 
 export const Navbar = () => {
@@ -40,24 +35,30 @@ export const Navbar = () => {
 	const [isSearchOpen, setIsSearchOpen] = useState(false);
 	const searchRef = useRef<HTMLDivElement>(null);
 
+	const searchKeyword = inputVal.trim();
+	const debouncedKeyword = useDebouncedValue(searchKeyword, 300);
+	const { data: searchData, isFetching: isSearching } = useQuery({
+		queryKey: ["searchTokens", debouncedKeyword],
+		queryFn: async () => {
+			const result = await getCoinList({ keyword: debouncedKeyword, page: 1, page_size: 100 });
+			return result?.data;
+		},
+		enabled: !!debouncedKeyword,
+	});
+	const isSearchPending = !!searchKeyword && debouncedKeyword !== searchKeyword;
 	const searchResults = useMemo(() => {
-		const query = inputVal.trim().toLowerCase();
-		if (!query) return [];
-		return SEARCH_TOKENS.filter((item) => {
-			return (
-				item.name.toLowerCase().includes(query) ||
-				item.symbol.toLowerCase().includes(query) ||
-				item.address.toLowerCase().includes(query)
-			);
-		});
-	}, [inputVal]);
+		if (Array.isArray((searchData as { list?: unknown[] } | null | undefined)?.list)) {
+			return (searchData as { list?: any[] }).list ?? [];
+		}
+		if (Array.isArray(searchData)) return searchData;
+		return [];
+	}, [searchData]);
 
 	// 跳转到代币详情页
 	const handleTokenClick = () => {
-		window.open(`https://web3.binance.com/token/bsc/${DEFAULT_CHAIN_CONFIG.ori}`, '_blank');
+		window.open(`https://web3.binance.com/token/bsc/${DEFAULT_CHAIN_CONFIG}`, '_blank');
 	};
 	const walletRef = useRef<HTMLDivElement>(null);
-	const { price } = useBalanceContext();
 
 	const { authenticated, logout } = usePrivy();
 	const { toLogin } = usePrivyLogin();
@@ -162,6 +163,10 @@ export const Navbar = () => {
 	};
 
 	const toCreate = () => {
+		if (!isLoggedIn) {
+			newLogin();
+			return;
+		}
 		if (isMobile) {
 			router.push("/create");
 		} else {
@@ -176,23 +181,13 @@ export const Navbar = () => {
 					<LogoIcon className="w-[24px] h-[24px]" />
 					<TextIcon />
 				</NextLink>
-				<div className="text-[16px] hidden md:flex items-center gap-[16px] pl-[24px] font-semibold">
+				<div className="text-[16px] hidden md:flex items-center gap-[16px] pl-[24px] font-semibold whitespace-nowrap">
 					{[
 						{ href: '/', label: '首页', isExternal: false },
 						{ href: '/swap', label: 'Swap', isExternal: false },
-						{ href: '/stake', label: '矿池', isExternal: false },
-						{ href: '', label: '创建代币', isExternal: false, onClick: toCreate },
 						{ href: 'https://www.baidu.com', label: '运行机制', isExternal: true },
-					].map(({ href, label, isExternal, onClick }) => (
-						onClick ? (
-							<div
-								key={href}
-								className="hover:opacity-80 transition-opacity text-[#868789] cursor-pointer"
-								onClick={onClick}
-							>
-								{label}
-							</div>
-						) : isExternal ? (
+					].map(({ href, label, isExternal }) => (
+						isExternal ? (
 							<div
 								key={href}
 								className="hover:opacity-80 transition-opacity text-[#868789] cursor-pointer"
@@ -204,7 +199,9 @@ export const Navbar = () => {
 							<NextLink
 								key={href}
 								href={href}
-								className={`hover:opacity-80 transition-opacity ${router.pathname === href ? 'text-[#fff]' : 'text-[#868789]'}`}
+								className={`hover:opacity-80 transition-opacity ${href === "/swap"
+									? (router.asPath.startsWith("/swap") ? "text-[#fff]" : "text-[#868789]")
+									: (router.pathname === href ? "text-[#fff]" : "text-[#868789]")}`}
 							>
 								{label}
 							</NextLink>
@@ -216,7 +213,7 @@ export const Navbar = () => {
 					<div className="hidden md:flex justify-end relative" ref={searchRef}>
 						<Input
 							classNames={{
-								inputWrapper: "w-full w-[400px] h-[36px] !border-[#191B1F] bg-[#191B1F] !border-[1.5px] rounded-[8px] hover:!border-[#191B1F] focus-within:!border-[#191B1F]",
+								inputWrapper: "w-full  w-[400px] h-[36px] !border-[#191B1F] bg-[#191B1F] !border-[1.5px] rounded-[8px] hover:!border-[#191B1F] focus-within:!border-[#191B1F]",
 								input: "text-[13px] text-[#FFF] font-semibold placeholder:text-[#5B5B5B] uppercase tracking-[-0.07px]",
 							}}
 							placeholder="搜索代币、地址"
@@ -236,18 +233,34 @@ export const Navbar = () => {
 							<div className="absolute right-0 top-full mt-[8px] w-[400px] bg-[#0D0F13] border border-[#25262A] rounded-[12px] overflow-hidden z-50 p-[14px]"
 								style={{ boxShadow: "0 4px 16px 0 rgba(48, 49, 53, 0.65)" }}
 							>
-								{searchResults.length > 0 ? (
+								{isSearching || isSearchPending ? (
+									<div className="flex flex-col gap-[8px]">
+										{Array.from({ length: 10 }).map((_, index) => (
+											<TokenItemSkeleton key={index} />
+										))}
+									</div>
+								) : searchResults.length > 0 ? (
 									<div className="max-h-[400px] overflow-y-auto">
 										{
-											Array.from({ length: 9 }).map((_, index) => (
-												<div key={index} className='mt-[8px]'>
-													<TokenItem type={index % 3 + 1} />
+											searchResults.map((item, index) => (
+												<div key={item?.id ?? item?.coin_id ?? item?.address ?? index} className='mt-[8px]'>
+													<TokenItem
+														data={item}
+														onClick={(clicked) => {
+															setIsSearchOpen(false);
+															setInputVal("");
+															router.push(`/token/${clicked?.mint ?? clicked?.address ?? clicked?.coin_id ?? clicked?.id}`);
+														}}
+													/>
 												</div>
 											))
 										}
 									</div>
 								) : (
-									<div className="px-[12px] py-[16px] text-[12px] text-[#868789]">暂无结果</div>
+									<div className="flex items-center justify-center flex-col py-[24px]">
+										<img src="/images/nothing.png" className="w-[80px] h-[80px]" />
+										<div className="text-[#868789] text-[14px]">暂无数据</div>
+									</div>
 								)}
 							</div>
 						)}
@@ -259,6 +272,7 @@ export const Navbar = () => {
 						isLoggedIn ? (
 							<div className="relative" ref={walletRef}>
 								<Button className="h-[32px] md:h-[36px] bg-[#191B1F] px-[12px] text-[13px] text-[#fff] rounded-[8px] gap-[4px] min-h-[32px]" variant="flat" onPress={handleWalletClick}>
+									<WalletIcon />
 									{shortenAddress(address!)}
 								</Button>
 								{isWalletDropdownOpen && (
