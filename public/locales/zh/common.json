@@ -18,13 +18,21 @@
         "tradeRecords": "交易记录",
         "type": "类型",
         "amount": "数量",
-        "noRecordsFound": "未找到记录"
+        "noRecordsFound": "未找到记录",
+        "claimRewards": "领取奖励",
+        "confirm": "确认领取"
     },
     "Explore": {
         "noRecordsFound": "未找到记录"
     },
     "Common": {
         "copySuccess": "复制成功",
-        "copyFailed": "复制失败"
+        "copyFailed": "复制失败",
+
+        "unrefined": "未精炼",
+        "refined": "精炼"
+    },
+    "MiningRewards": {
+        "claimConfirmDesc": "您确定要领取所有挖矿奖励，包括精炼和未精炼的 {{tokenSymbol}} 吗？领取后你的未精炼 {{tokenSymbol}} 将转化为精炼 {{tokenSymbol}}。"
     }
 }

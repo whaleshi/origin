@@ -367,7 +367,7 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 							}
 							labelPlacement="outside-top"
 							name="x"
-							placeholder="@username 或 https://x.com/username"
+							placeholder="https://"
 							variant="bordered"
 							value={xVal}
 							onChange={(e) => setXVal(e.target.value.trim())}
@@ -388,7 +388,7 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 							}
 							labelPlacement="outside-top"
 							name="telegram"
-							placeholder="@group 或 https://t.me/group"
+							placeholder="https://"
 							variant="bordered"
 							value={telegramVal}
 							onChange={(e) => setTelegramVal(e.target.value.trim())}

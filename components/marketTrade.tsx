@@ -293,7 +293,7 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 		<div className="h-[48px] flex items-center justify-between">
 			<div className="text-[13px] text-[#868789] flex items-center min-w-0 whitespace-nowrap">钱包余额
 				<span className="text-[#fff] mx-[4px] truncate max-w-[120px] min-w-0">{walletBalanceText}</span>
-				{currentSide === 'buy' && <span className="text-[#17C964] cursor-pointer">充值</span>}
+				{currentSide === 'buy' && address && <span className="text-[#17C964] cursor-pointer">充值</span>}
 			</div>
 			<div className="flex gap-[4px]">
 				{currentSide === "buy"

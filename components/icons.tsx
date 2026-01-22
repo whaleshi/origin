@@ -125,6 +125,13 @@ export const CloseIcon = (props: IconSvgProps) => (
 	</svg>
 )
 
+export const InfoIcon = (props: IconSvgProps) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none" {...props}>
+		<path d="M6 0C9.31371 0 12 2.68629 12 6C12 9.31371 9.31371 12 6 12C2.68629 12 0 9.31371 0 6C0 2.68629 2.68629 0 6 0ZM5.25 5.25V9.25H6.75V5.25H5.25ZM5.25 2.75V4.25H6.75V2.75H5.25Z" fill="#4A4B4E" />
+	</svg>
+);
+
+
 export const ZuanIcon = (props: IconSvgProps) => (
 	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" {...props}>
 		<path d="M9.28333 1L15 6.71666V9.28333L9.28333 15H6.71666L1 9.28333V6.71666L6.71666 1H9.28333Z" fill="#F4DC27" />

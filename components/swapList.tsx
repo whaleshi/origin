@@ -35,6 +35,8 @@ export const SwapList = ({ coinInfo }: SwapListProps) => {
 
 	// 统一数据
 	const displayData = miningGameRecords || { list: [], total: 0 };
+	const hasRecords = (displayData?.list?.length ?? 0) > 0;
+	const showLoading = isLoading && !miningGameRecords;
 
 	return (
 		<div className="w-full">
@@ -53,13 +55,13 @@ export const SwapList = ({ coinInfo }: SwapListProps) => {
 
 					{/* Table Rows */}
 					<div className="">
-						{isLoading ? (
+						{showLoading ? (
 							<div className="flex h-[380px] items-center justify-center text-[14px] text-[#868789]">
 								<div className="flex flex-col items-center gap-[12px]">
 									<img src="/images/logo.png" alt="Loading" className="w-[40px] h-[40px]" />
 								</div>
 							</div>
-						) : displayData?.list?.length > 0 ? (
+						) : hasRecords ? (
 							displayData.list.map((row: any, index: any) => (
 								<div key={index} className="flex min-h-[38px] items-center text-[12px] hover:bg-[#191B1F] transition-colors cursor-pointer px-[12px] rounded-[8px] py-[2px]">
 									<div className={`w-[60px] md:flex-[0.6] shrink-0 break-words text-left ${row?.is_buy === 0 ? 'text-[#FF5160]' : 'text-[#2ED075]'}`}>
