@@ -98,7 +98,16 @@ export async function getServerSideProps(context: { params?: { addr?: string } }
 		return { props: {} };
 	}
 	try {
-		const res = await getCoinShow({ mint: addr });
+		const apiBase = process.env.NEXT_PUBLIC_API_URL;
+		if (!apiBase) return { props: {} };
+		const response = await fetch(`${apiBase}/v1/originfun/coin_show`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded",
+			},
+			body: new URLSearchParams({ mint: addr }),
+		});
+		const res = response.ok ? await response.json() : null;
 		const data = res?.data ?? null;
 		if (!data) return { props: {} };
 		return {
