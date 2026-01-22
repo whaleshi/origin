@@ -91,3 +91,27 @@ export default function Token() {
 		</div>
 	);
 };
+
+export async function getServerSideProps(context: { params?: { addr?: string } }) {
+	const addr = context.params?.addr;
+	if (!addr || typeof addr !== "string") {
+		return { props: {} };
+	}
+	try {
+		const res = await getCoinShow({ mint: addr });
+		const data = res?.data ?? null;
+		if (!data) return { props: {} };
+		return {
+			props: {
+				tokenMetadata: {
+					name: data?.name ?? null,
+					symbol: data?.symbol ?? null,
+					image: data?.image_url ?? null,
+					is_refine: data?.is_refine ?? 0,
+				},
+			},
+		};
+	} catch {
+		return { props: {} };
+	}
+}

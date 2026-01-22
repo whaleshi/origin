@@ -114,7 +114,7 @@ export default function App({ Component, pageProps }: AppProps) {
 				{/* 预加载关键图片 */}
 				<link rel="preload" href="/images/logo.png" as="image" />
 			</Head>
-			<HeadWeb />
+			<HeadWeb tokenMetadata={pageProps?.tokenMetadata} />
 			{
 				isMounted ? (
 					<WagmiProvider config={config}>

@@ -5,13 +5,22 @@ import { siteConfig } from "@/config/site";
 import { useTranslation } from "react-i18next";
 import { TokenHead } from "@/layouts/tokenHead";
 
-export const HeadWeb = () => {
+type HeadWebProps = {
+	tokenMetadata?: {
+		name?: string;
+		symbol?: string;
+		image?: string;
+		is_refine?: number;
+	};
+};
+
+export const HeadWeb = ({ tokenMetadata }: HeadWebProps) => {
 	const router = useRouter();
 	const { i18n } = useTranslation();
 	const isEnglish = i18n?.language?.startsWith("en");
 	const socialImage = isEnglish ? siteConfig.imgEn : siteConfig.img;
 	if (router.pathname.startsWith('/token/')) {
-		return <TokenHead />;
+		return <TokenHead serverMetadata={tokenMetadata} />;
 	}
 	return (
 		<NextHead>
