@@ -9,6 +9,7 @@ import { formatPercent, getPercentClass } from "@/utils/number";
 import { DEFAULT_CHAIN_CONFIG } from "@/config/chains";
 import { shortenAddress } from "@/utils";
 import useClipboard from "@/hooks/useCopyToClipboard";
+import { useTranslation } from "react-i18next";
 
 type MarketProps = {
 	coinInfo?: any;
@@ -30,6 +31,7 @@ const getOkxWalletUrl = (address: string | null | undefined) => {
 };
 
 export default function Market({ coinInfo, onSwitchToMining }: MarketProps) {
+	const { t } = useTranslation();
 	const { isOpen, onOpen, onOpenChange } = useDisclosure();
 	const [side, setSide] = useState<"buy" | "sell">("buy");
 	const { copy } = useClipboard();
@@ -54,7 +56,7 @@ export default function Market({ coinInfo, onSwitchToMining }: MarketProps) {
 			</div>
 			<div className="border-[1px] border-dashed border-[#25262A] rounded-[10px] my-[24px]">
 				<div className={`${coinInfo?.is_refine != 1 ? 'h-[40px]' : 'h-[60px]'} flex w-full`}>
-					<div className={`text-[14px] text-[#868789] px-[12px] flex-1 flex ${coinInfo?.is_refine === 1 ? 'flex-col justify-center' : 'justify-between'} items-center `}>市值<span className="text-[#fff]">${formatBigNumber(coinInfo?.market_cap_f)}</span></div>
+					<div className={`text-[14px] text-[#868789] px-[12px] flex-1 flex ${coinInfo?.is_refine === 1 ? 'flex-col justify-center' : 'justify-between'} items-center `}>{t("Market.marketCap")}<span className="text-[#fff]">${formatBigNumber(coinInfo?.market_cap_f)}</span></div>
 				</div>
 				{
 					coinInfo?.is_refine != 1 && <div className="p-[12px] border-t-[1px] border-dashed border-[#25262A] overflow-hidden relative">
@@ -67,7 +69,7 @@ export default function Market({ coinInfo, onSwitchToMining }: MarketProps) {
 								}}
 							></div>
 						</div>
-						<div className="text-[12px] text-[#868789]">Bonding Curve 进度</div>
+						<div className="text-[12px] text-[#868789]">{t("Market.bondingProgress")}</div>
 						<div className="text-[#fff] text-[16px] font-semibold">{coinInfo?.launch_progress?.toFixed(2) ?? 0}%</div>
 					</div>
 				}
@@ -80,7 +82,7 @@ export default function Market({ coinInfo, onSwitchToMining }: MarketProps) {
 							className="h-[44px] bg-[#FD7438] text-[15px] text-[#fff] rounded-[8px]"
 							onPress={onSwitchToMining}
 						>
-							去挖矿
+							{t("Market.goMining")}
 						</Button>
 						<div className="flex gap-[12px] mt-[12px]">
 							<Button
@@ -108,7 +110,7 @@ export default function Market({ coinInfo, onSwitchToMining }: MarketProps) {
 						</div>
 					</div>
 			}
-			<div className="text-[15px] font-semibold mt-[24px]">代币详情</div>
+			<div className="text-[15px] font-semibold mt-[24px]">{t("Market.tokenDetails")}</div>
 			<div className="text-[13px] text-[#868789] mt-[12px]">{coinInfo?.site_info_obj?.description}</div>
 			{(coinInfo?.site_info_obj?.x || coinInfo?.site_info_obj?.telegram || coinInfo?.site_info_obj?.website) && (
 				<div className="flex items-center gap-[8px] mt-[12px]">
@@ -130,20 +132,20 @@ export default function Market({ coinInfo, onSwitchToMining }: MarketProps) {
 				</div>
 			)}
 			<div className="bg-[#191B1F] p-[12px] border-[1px] border-[#25262A] rounded-[8px] mt-[24px] text-[13px] text-[#868789] flex flex-col gap-[8px] mb-[30px]">
-				<div className="flex items-center justify-between">代币总量<span className="text-[#fff]">{formatBigNumber(coinInfo?.token_supply, { decimals: 8, compact: false, withComma: true, precision: 8, trimTrailingZero: true })}</span></div>
-				<div className="flex items-center justify-between">联合曲线总量<span className="text-[#fff]">{formatBigNumber(coinInfo?.bonding_curve_total, { decimals: 8, compact: false, withComma: true, precision: 8, trimTrailingZero: true })}</span></div>
-				<div className="flex items-center justify-between">Pancake 流动性<span className="text-[#fff]">{formatBigNumber(coinInfo?.pancake_liquidity, { decimals: 8, compact: false, withComma: true, precision: 8, trimTrailingZero: true })}</span></div>
+				<div className="flex items-center justify-between">{t("Market.tokenSupply")}<span className="text-[#fff]">{formatBigNumber(coinInfo?.token_supply, { decimals: 8, compact: false, withComma: true, precision: 8, trimTrailingZero: true })}</span></div>
+				<div className="flex items-center justify-between">{t("Market.bondingCurveTotal")}<span className="text-[#fff]">{formatBigNumber(coinInfo?.bonding_curve_total, { decimals: 8, compact: false, withComma: true, precision: 8, trimTrailingZero: true })}</span></div>
+				<div className="flex items-center justify-between">{t("Market.pancakeLiquidity")}<span className="text-[#fff]">{formatBigNumber(coinInfo?.pancake_liquidity, { decimals: 8, compact: false, withComma: true, precision: 8, trimTrailingZero: true })}</span></div>
 				<div className="border-y-[1px] border-[#303135] border-dashed flex flex-col gap-[8px] py-[8px]">
-					<div className="flex items-center justify-between">代币挖矿预留<span className="text-[#fff]">{formatBigNumber(coinInfo?.mining_reserve, { decimals: 8, compact: false, withComma: true, precision: 8, trimTrailingZero: true })}</span></div>
+					<div className="flex items-center justify-between">{t("Market.miningReserve")}<span className="text-[#fff]">{formatBigNumber(coinInfo?.mining_reserve, { decimals: 8, compact: false, withComma: true, precision: 8, trimTrailingZero: true })}</span></div>
 					<div className="flex items-center justify-between">
-						挖矿状态
+						{t("Market.miningStatus")}
 						<span className={coinInfo?.is_refine === 1 ? "text-[#17C964]" : "text-[#FD7438]"}>
-							{coinInfo?.is_refine === 1 ? "已激活" : "待激活"}
+							{coinInfo?.is_refine === 1 ? t("Market.activated") : t("Market.pending")}
 						</span>
 					</div>
 				</div>
 				<div className="flex items-center justify-between">
-					合约地址
+					{t("Market.contractAddress")}
 					<a
 						href={getAddressUrl(coinInfo?.mint)}
 						target="_blank"
@@ -164,7 +166,7 @@ export default function Market({ coinInfo, onSwitchToMining }: MarketProps) {
 					</a>
 				</div>
 				<div className="flex items-center justify-between">
-					创建者
+					{t("Market.creator")}
 					<a
 						href={getAddressUrl(coinInfo?.creator)}
 						target="_blank"
@@ -195,7 +197,7 @@ export default function Market({ coinInfo, onSwitchToMining }: MarketProps) {
 							onOpen();
 						}}
 					>
-						卖出
+						{t("Market.sell")}
 					</Button>
 					<Button
 						fullWidth
@@ -205,7 +207,7 @@ export default function Market({ coinInfo, onSwitchToMining }: MarketProps) {
 							onOpen();
 						}}
 					>
-						买入
+						{t("Market.buy")}
 					</Button>
 				</div> : <div className="h-[60px] bg-[#0D0F13] border-t-[1px] border-[#25262A] w-full fixed bottom-0 left-0 right-0 px-[16px] flex items-center gap-[8px] md:hidden">
 					<Button
@@ -231,7 +233,7 @@ export default function Market({ coinInfo, onSwitchToMining }: MarketProps) {
 						className="h-[44px] bg-[#FD7438] rounded-[8px] text-[15px]"
 						onPress={onSwitchToMining}
 					>
-						去挖矿
+						{t("Market.goMining")}
 					</Button>
 				</div>
 			}
@@ -266,7 +268,7 @@ export default function Market({ coinInfo, onSwitchToMining }: MarketProps) {
 									: "text-[#868789] border-[#25262A] hover:text-[#fff] hover:bg-[#1E2025]"
 									}`}
 							>
-								买入
+								{t("Market.buy")}
 							</button>
 							<button
 								type="button"
@@ -276,7 +278,7 @@ export default function Market({ coinInfo, onSwitchToMining }: MarketProps) {
 									: "text-[#868789] border-[#25262A] hover:text-[#fff] hover:bg-[#1E2025]"
 									}`}
 							>
-								卖出
+								{t("Market.sell")}
 							</button>
 						</div>
 						<button className="absolute right-[16px] top-1/2 transform -translate-y-1/2 hover:opacity-70 transition-opacity cursor-pointer" onClick={onOpenChange}>

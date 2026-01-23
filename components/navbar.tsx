@@ -183,9 +183,9 @@ export const Navbar = () => {
 				</NextLink>
 				<div className="text-[16px] hidden md:flex items-center gap-[16px] pl-[24px] font-semibold whitespace-nowrap">
 					{[
-						{ href: '/', label: '首页', isExternal: false },
-						{ href: '/swap', label: 'Swap', isExternal: false },
-						{ href: 'https://www.baidu.com', label: '运行机制', isExternal: true },
+						{ href: '/', label: t("Navbar.home"), isExternal: false },
+						{ href: '/swap', label: t("Swap.title"), isExternal: false },
+						{ href: 'https://www.baidu.com', label: t("Navbar.mechanism"), isExternal: true },
 					].map(({ href, label, isExternal }) => (
 						isExternal ? (
 							<div
@@ -216,7 +216,7 @@ export const Navbar = () => {
 								inputWrapper: "w-full  w-[400px] h-[36px] !border-[#191B1F] bg-[#191B1F] !border-[1.5px] rounded-[8px] hover:!border-[#191B1F] focus-within:!border-[#191B1F]",
 								input: "text-[13px] text-[#FFF] font-semibold placeholder:text-[#5B5B5B] uppercase tracking-[-0.07px]",
 							}}
-							placeholder="搜索代币、地址"
+							placeholder={t("Navbar.searchPlaceholder")}
 							variant="bordered"
 							value={inputVal}
 							isDisabled={false}
@@ -259,14 +259,14 @@ export const Navbar = () => {
 								) : (
 									<div className="flex items-center justify-center flex-col py-[24px]">
 										<img src="/images/nothing.png" className="w-[80px] h-[80px]" />
-										<div className="text-[#868789] text-[14px]">暂无数据</div>
+										<div className="text-[#868789] text-[14px]">{t("Common.noData")}</div>
 									</div>
 								)}
 							</div>
 						)}
 					</div>
 					<Button className="h-[32px] md:h-[36px] bg-[transparent] px-[12px] text-[13px] text-[#FD7438] rounded-[8px] border-[1px] border-[#FD7438] gap-[4px] min-h-[32px]" variant="flat" onPress={toCreate}>
-						创建代币
+						{t("Navbar.createToken")}
 					</Button>
 					{
 						isLoggedIn ? (
@@ -279,14 +279,14 @@ export const Navbar = () => {
 									<div className="absolute top-full right-0 mt-[8px] w-[400px] bg-[#0D0F13] border border-[#303135] rounded-[12px] p-[16px] px-[14px] z-50"
 										style={{ boxShadow: "0 4px 16px 0 rgba(48, 49, 53, 0.65)" }}
 									>
-										<div className="text-[28px] text-[#fff] font-bold mb-[16px]">资产</div>
+										<div className="text-[28px] text-[#fff] font-bold mb-[16px]">{t("Wallet.assets")}</div>
 										<WalletBox />
 										<div className="mt-[16px] max-h-[50vh] overflow-y-auto"><MeList /></div>
 									</div>
 								)}
 							</div>
 						) : <Button className="h-[32px] md:h-[36px] bg-[#FFF] px-[12px] text-[13px] text-[#0D0F13] rounded-[8px] border-[1px] border-[#FFF] gap-[4px] min-h-[32px]" variant="flat" onPress={newLogin}>
-							连接钱包
+							{t("Navbar.connectWallet")}
 						</Button>
 					}
 					<HeaderXIcon className="cursor-pointer hover:opacity-80 transition-opacity hidden md:block" />
@@ -312,7 +312,7 @@ export const Navbar = () => {
 					>
 						<div className="flex flex-col">
 							<div className="flex items-center justify-between h-[48px]">
-								<span className="text-[14px] text-[#fff] font-medium">语言</span>
+								<span className="text-[14px] text-[#fff] font-medium">{t("Navbar.language")}</span>
 								<LangIcon
 									lang={lang as 'zh' | 'en'}
 									className="cursor-pointer hover:opacity-80 transition-opacity"
@@ -321,7 +321,7 @@ export const Navbar = () => {
 							</div>
 							<Divider className="bg-[#0D0F13]" />
 							<div className="flex items-center justify-between h-[48px]">
-								<div className="text-[14px] text-[#fff] font-medium">加入社区</div>
+								<div className="text-[14px] text-[#fff] font-medium">{t("Navbar.joinCommunity")}</div>
 								<div className="flex items-center gap-[12px]">
 									<Image src="/images/x.png" alt="x" className="w-[24px] h-[24px]" disableSkeleton disableAnimation radius="none" onClick={() => { window.open(siteConfig.links.x, '_blank'); }} />
 									<Image src="/images/tg.png" alt="tg" className="w-[24px] h-[24px]" disableSkeleton disableAnimation radius="none" onClick={() => { window.open(siteConfig.links.tg, '_blank'); }} />
@@ -331,7 +331,7 @@ export const Navbar = () => {
 							<div
 								className="flex items-center justify-between cursor-pointer hover:opacity-80 transition-opacity  h-[48px]"
 							>
-								<span className="text-[14px] text-[#fff] font-medium">运行机制</span>
+								<span className="text-[14px] text-[#fff] font-medium">{t("Navbar.mechanism")}</span>
 							</div>
 						</div>
 					</div>

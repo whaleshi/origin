@@ -16,6 +16,7 @@ import { useTokenBalance } from "@/hooks/useTokenBalance";
 import { useSlippageStore } from "@/stores/slippage";
 import { showErrorToast, showLoadingToast, showSuccessToast } from "@/utils/toastHelpers";
 import usePrivyLogin from "@/hooks/usePrivyLogin";
+import { useTranslation } from "react-i18next";
 
 type MarketTradeProps = {
 	coinInfo?: any;
@@ -24,6 +25,7 @@ type MarketTradeProps = {
 };
 
 export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTradeProps) {
+	const { t } = useTranslation();
 	const buyAmountList = [0.1, 0.2, 0.5];
 	const sellPercentList = [10, 20, 50];
 	const [localSide, setLocalSide] = useState<"buy" | "sell">("buy");
@@ -99,7 +101,7 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 	const isActionDisabled = address
 		? !amount || amountWei <= 0n || (isBuy ? minAmountOut <= 0n : false) || isInsufficient
 		: false;
-	const actionLabel = address ? (isBuy ? "立即买入" : "立即卖出") : "Connect Wallet";
+	const actionLabel = address ? (isBuy ? t("Trade.buyNow") : t("Trade.sellNow")) : t("Actions.connectWallet");
 	const setSellAmountPercent = (percent: number) => {
 		const bn = new BigNumber(tokenBalanceValue.toString());
 		if (!bn.isFinite() || bn.isZero()) {
@@ -128,12 +130,12 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 			return;
 		}
 		if (isInsufficient) {
-			showErrorToast("余额不足");
+			showErrorToast(t("Toast.balanceInsufficient"));
 			return;
 		}
 		if (!tokenFactoryAddress || !coinInfo?.mint || amountWei <= 0n || !publicClient) return;
 		try {
-			const actionText = "买入";
+			const actionText = t("Actions.buy");
 			const quote = await publicClient.readContract({
 				address: tokenFactoryAddress,
 				abi: (TokenFactoryAbi as any).abi ?? TokenFactoryAbi,
@@ -159,12 +161,12 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 			});
 			if (hash) {
 				console.log("buyToken submitted:", hash);
-				showLoadingToast(`${actionText}已发起`, `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
+				showLoadingToast(t("Toast.actionSubmitted", { action: actionText }), `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
 			}
 			if (publicClient && hash) {
 				await publicClient.waitForTransactionReceipt({ hash });
 				console.log("buyToken confirmed:", hash);
-				showSuccessToast(`${actionText}成功`, `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
+				showSuccessToast(t("Toast.actionSuccess", { action: actionText }), `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
 				setAmount("");
 				setAmountValue("");
 				refetchTokenBalance();
@@ -174,7 +176,7 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 			}
 		} catch (error) {
 			console.error("buyToken error:", error);
-			showErrorToast("买入失败");
+			showErrorToast(t("Toast.actionFailed", { action: t("Actions.buy") }));
 		}
 	};
 	const handleSell = async () => {
@@ -183,13 +185,13 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 			return;
 		}
 		if (isInsufficient) {
-			showErrorToast("余额不足");
+			showErrorToast(t("Toast.balanceInsufficient"));
 			return;
 		}
 		if (!tokenFactoryAddress || !coinInfo?.mint || amountWei <= 0n || !publicClient) return;
 		setIsSelling(true);
 		try {
-			const actionText = "卖出";
+			const actionText = t("Actions.sell");
 			const allowance = await publicClient.readContract({
 				address: coinInfo.mint,
 				abi: (IERC20Abi as any).abi ?? IERC20Abi,
@@ -234,12 +236,12 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 			});
 			if (hash) {
 				console.log("sellToken submitted:", hash);
-				showLoadingToast(`${actionText}已发起`, `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
+				showLoadingToast(t("Toast.actionSubmitted", { action: actionText }), `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
 			}
 			if (publicClient && hash) {
 				await publicClient.waitForTransactionReceipt({ hash });
 				console.log("sellToken confirmed:", hash);
-				showSuccessToast(`${actionText}成功`, `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
+				showSuccessToast(t("Toast.actionSuccess", { action: actionText }), `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
 				setAmount("");
 				setAmountValue("");
 				refetchTokenBalance();
@@ -249,7 +251,7 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 			}
 		} catch (error) {
 			console.error("sellToken error:", error);
-			showErrorToast("卖出失败");
+			showErrorToast(t("Toast.actionFailed", { action: t("Actions.sell") }));
 		} finally {
 			setIsSelling(false);
 		}
@@ -265,7 +267,7 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 					: "text-[#868789] border-[#25262A] hover:text-[#fff] hover:bg-[#1E2025]"
 					}`}
 			>
-				买入
+				{t("Actions.buy")}
 			</button>
 			<button
 				type="button"
@@ -275,7 +277,7 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 					: "text-[#868789] border-[#25262A] hover:text-[#fff] hover:bg-[#1E2025]"
 					}`}
 			>
-				卖出
+				{t("Actions.sell")}
 			</button>
 		</div>
 		<div>
@@ -307,9 +309,9 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 			/>
 		</div>
 		<div className="h-[48px] flex items-center justify-between">
-			<div className="text-[13px] text-[#868789] flex items-center min-w-0 whitespace-nowrap">钱包余额
+			<div className="text-[13px] text-[#868789] flex items-center min-w-0 whitespace-nowrap">{t("Trade.walletBalance")}
 				<span className="text-[#fff] mx-[4px] truncate max-w-[120px] min-w-0">{walletBalanceText}</span>
-				{currentSide === 'buy' && address && <span className="text-[#17C964] cursor-pointer">充值</span>}
+				{currentSide === 'buy' && address && <span className="text-[#17C964] cursor-pointer">{t("Actions.deposit")}</span>}
 			</div>
 			<div className="flex gap-[4px]">
 				{currentSide === "buy"
@@ -345,14 +347,14 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 		</div>
 		<div className="border-[1px] border-dashed border-[#303135] rounded-[8px] px-[12px] py-[16px]">
 			<div className="flex items-center justify-between">
-				<div className="text-[13px] text-[#868789]">预计获得</div>
+				<div className="text-[13px] text-[#868789]">{t("Trade.estimatedReceive")}</div>
 				<div className="flex items-center gap-[4px]">
 					{currentSide === 'sell' ? <BNBIcon className="w-[16px] h-[16px]" /> : <MyAvatar src={tokenAvatar} alt="icon" className="w-[16px] h-[16px] bg-[transparent]" />}
 					<span className="text-[13px] text-[#fff]">{estimatedAmount}</span>
 				</div>
 			</div>
 			<div className="flex items-center justify-between mt-[10px]">
-				<div className="text-[13px] text-[#868789]">滑点</div>
+				<div className="text-[13px] text-[#868789]">{t("Trade.slippage")}</div>
 				<div className="flex items-center text-[13px] text-[#fff] gap-[4px]">
 					<span>{slippage}%</span>
 					<SettingIcon className="cursor-pointer" onClick={() => setIsSlippageOpen(true)} />

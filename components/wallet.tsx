@@ -8,8 +8,10 @@ import { Button } from "@heroui/react";
 import { useFundWallet, usePrivy } from "@privy-io/react-auth";
 import router from "next/router";
 import { bsc } from "wagmi/chains";
+import { useTranslation } from "react-i18next";
 
 export const WalletBox = () => {
+	const { t } = useTranslation();
 	const { balance, symbol } = useBalanceContext();
 	const { logout } = usePrivy();
 	const { fundWallet } = useFundWallet();
@@ -30,8 +32,8 @@ export const WalletBox = () => {
 				chain: bsc,
 				defaultFundingMethod: 'manual',
 				uiConfig: {
-					receiveFundsTitle: 'Receive 0.5 BNB',
-					receiveFundsSubtitle: 'Scan this code or copy your wallet address to receive funds on Bsc.'
+					receiveFundsTitle: t("Wallet.receiveTitle"),
+					receiveFundsSubtitle: t("Wallet.receiveSubtitle")
 				}
 			}
 		});
@@ -41,7 +43,7 @@ export const WalletBox = () => {
 			<div className="bg-[#25262A] rounded-t-[12px] px-[16px]">
 				<div className="w-full h-[74px] flex items-center justify-between">
 					<div>
-						<div className="text-[12px] text-[rgba(255,255,255,0.35)]">钱包余额</div>
+						<div className="text-[12px] text-[rgba(255,255,255,0.35)]">{t("Wallet.balance")}</div>
 						<div className="text-[20px] text-[#fff] font-bold">{formatBigNumber(balance)} {symbol}</div>
 					</div>
 					<div className="flex gap-[8px]">
@@ -51,7 +53,7 @@ export const WalletBox = () => {
 							radius="full"
 							onPress={() => receive()}
 						>
-							接收
+							{t("Wallet.receive")}
 						</Button>
 					</div>
 				</div>

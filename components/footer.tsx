@@ -32,19 +32,19 @@ export default function Footer() {
 	const footerItems: FooterItem[] = [
 		{
 			id: "origin",
-			label: '起源',
+			label: t("Footer.origin"),
 			icon: (<FooterIcon1 />),
 			path: "/"
 		},
 		{
 			id: "swap",
-			label: 'swap',
+			label: t("Footer.swap"),
 			icon: (<div className="w-[20px] h-[20px]"></div>),
 			path: "/swap"
 		},
 		{
 			id: "me",
-			label: '我的',
+			label: t("Footer.me"),
 			icon: (<FooterIcon2 />),
 			path: "/me"
 		},

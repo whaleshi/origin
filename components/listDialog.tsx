@@ -5,6 +5,7 @@ import TokenItem, { TokenItemSkeleton } from "./tokenItem";
 import router from "next/router";
 import { getCoinList } from '@/service/api';
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 type listDialogProps = {
 	isOpen: boolean;
@@ -13,6 +14,7 @@ type listDialogProps = {
 };
 
 export default function ListDialog({ isOpen, onOpenChange, onSelect }: listDialogProps) {
+	const { t } = useTranslation();
 
 	const [inputValue, setInputValue] = useState("");
 	const keyword = inputValue.trim();
@@ -62,7 +64,7 @@ export default function ListDialog({ isOpen, onOpenChange, onSelect }: listDialo
 				</div>
 				<ModalHeader className="flex justify-center items-center p-0 relative h-[48px] mt-[8px]">
 					<div className="flex text-[17px]">
-						选择矿池
+						{t("ListDialog.selectPool")}
 					</div>
 					<button className="absolute right-[16px] top-1/2 transform -translate-y-1/2 hover:opacity-70 transition-opacity cursor-pointer" onClick={() => onOpenChange(false)}>
 						<CloseIcon />
@@ -76,7 +78,7 @@ export default function ListDialog({ isOpen, onOpenChange, onSelect }: listDialo
 								input: "text-[14px] text-white placeholder:text-[#4A4B4E]",
 							}}
 							name="name"
-							placeholder="搜索或选择你想要挖矿的矿池"
+							placeholder={t("ListDialog.searchPlaceholder")}
 							variant="bordered"
 							value={inputValue}
 							onChange={(e) => setInputValue(e.target.value)}
@@ -84,7 +86,7 @@ export default function ListDialog({ isOpen, onOpenChange, onSelect }: listDialo
 							startContent={<SearchInputIcon className="cursor-pointer" />}
 						/>
 					</div>
-					<div className="text-[16px] w-full mt-[24px] px-[14px] mb-[10px]">热门矿池</div>
+					<div className="text-[16px] w-full mt-[24px] px-[14px] mb-[10px]">{t("ListDialog.hotPools")}</div>
 					<div className='w-full max-h-[50vh] overflow-y-auto'>
 						{
 							isLoading ? (
@@ -114,7 +116,7 @@ export default function ListDialog({ isOpen, onOpenChange, onSelect }: listDialo
 								) : (
 									<div className="h-[200px] mt-[8px] flex flex-col items-center justify-center">
 										<img src="/images/nothing.png" className="w-[80px] h-[80px]" />
-										<div className="text-[#868789] text-[14px]">暂无数据</div>
+										<div className="text-[#868789] text-[14px]">{t("ListDialog.noData")}</div>
 									</div>
 								)
 							)

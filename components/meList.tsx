@@ -9,21 +9,21 @@ import IERC20Abi from "@/constant/IERC20.json";
 import { DEFAULT_CHAIN_ID } from "@/config/chains";
 import { formatBigNumber } from "@/utils/formatBigNumber";
 import { Pagination } from "@heroui/react";
+import { useTranslation } from "react-i18next";
 
 
 export default function MeList() {
-	const [activeTab, setActiveTab] = useState('持仓代币');
+	const { t } = useTranslation();
+	const [activeTab, setActiveTab] = useState<'holder' | 'mining' | 'created'>('holder');
 	const { address } = useAuthStore();
 	const tabs = useMemo(() => ([
-		{ label: '持仓代币', key: 'holder' },
-		{ label: '挖矿', key: 'mining' },
-		{ label: '我创建的', key: 'created' },
-	]), []);
+		{ label: t("Me.tabHoldings"), key: 'holder' },
+		{ label: t("Me.tabMining"), key: 'mining' },
+		{ label: t("Me.tabCreated"), key: 'created' },
+	]), [t]);
 	const pageSize = 20;
 	const [currentPage, setCurrentPage] = useState(1);
-	const activeTabIndex = tabs.findIndex((tab) => tab.label === activeTab);
-	const safeActiveIndex = activeTabIndex === -1 ? 0 : activeTabIndex;
-	const activeTabKey = tabs[safeActiveIndex]?.key;
+	const activeTabKey = activeTab;
 
 	useEffect(() => {
 		setCurrentPage(1);
@@ -106,12 +106,12 @@ export default function MeList() {
 		<div className=''>
 			<div className="h-[52px] flex items-center justify-between">
 				<div className="text-[16px] flex gap-[12px]">
-					{tabs.map((tab) => (
+					{tabs.map((tab: any) => (
 						<div
 							key={tab.label}
-							className={`cursor-pointer ${activeTab === tab.label ? 'text-white' : 'text-[#868789]'
+							className={`cursor-pointer ${activeTab === tab.key ? 'text-white' : 'text-[#868789]'
 								}`}
-							onClick={() => setActiveTab(tab.label)}
+							onClick={() => setActiveTab(tab.key)}
 						>
 							{tab.label}
 						</div>
@@ -196,7 +196,7 @@ export default function MeList() {
 						) : (
 							<div className='h-[200px] mt-[8px] bg-[rgba(13,15,19,0.35)] border-[1px] border-[#25262A] rounded-[8px] flex flex-col items-center justify-center'>
 								<img src="/images/nothing.png" className="w-[80px] h-[80px]" />
-								<div className="text-[#868789] text-[14px]">暂无数据</div>
+								<div className="text-[#868789] text-[14px]">{t("Common.noData")}</div>
 							</div>
 						)
 					)

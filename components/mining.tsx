@@ -12,12 +12,14 @@ import { SwapList } from "./swapList";
 import ListDialog from "./listDialog";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type MiningProps = {
 	coinInfo?: any;
 };
 
 export default function Mining({ coinInfo }: MiningProps) {
+	const { t } = useTranslation();
 	const router = useRouter();
 	const [isListDialogOpen, setIsListDialogOpen] = useState(false);
 	const changeValue = coinInfo?.price_change_24h_f ?? coinInfo?.price_change_24h ?? coinInfo?.change_24h;
@@ -27,7 +29,7 @@ export default function Mining({ coinInfo }: MiningProps) {
 	if (coinInfo?.is_refine === 0) {
 		return <div className="flex flex-col items-center pt-[200px]">
 			<Image src="/images/mining.png" alt="Mining" disableAnimation disableSkeleton className="w-[80px] h-[80px]" />
-			<div className="text-[14px] text-[#868789]">挖矿待激活</div>
+			<div className="text-[14px] text-[#868789]">{t("Mining.pendingActivation")}</div>
 		</div>
 	}
 

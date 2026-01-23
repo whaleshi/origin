@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import MyAvatar from "@/components/avatar";
 import useClipboard from "@/hooks/useCopyToClipboard";
 import router from "next/router";
+import { useTranslation } from "react-i18next";
 
 
 type CreateDialogProps = {
@@ -12,6 +13,7 @@ type CreateDialogProps = {
 	onOpenChange: (open: boolean) => void;
 };
 const CreateDialog: React.FC<CreateDialogProps> = ({ isOpen, onOpenChange }) => {
+	const { t } = useTranslation();
 	const [createdToken, setCreatedToken] = useState<{
 		name: string;
 		symbol: string;
@@ -36,7 +38,7 @@ const CreateDialog: React.FC<CreateDialogProps> = ({ isOpen, onOpenChange }) => 
 		if (!createdToken) return;
 		const origin = typeof window !== "undefined" ? window.location.origin : "";
 		const shareUrl = createdToken.address ? `${origin}/token/${createdToken.address}` : origin;
-		const text = `我刚创建了 ${createdToken.name} (${createdToken.symbol})`;
+		const text = t("Create.shareText", { name: createdToken.name, symbol: createdToken.symbol });
 		const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
 		window.open(url, "_blank", "noopener,noreferrer");
 	};
@@ -73,7 +75,7 @@ const CreateDialog: React.FC<CreateDialogProps> = ({ isOpen, onOpenChange }) => 
 					</div>
 					<ModalHeader className="flex justify-center items-center p-0 relative h-[48px] mt-[8px]">
 						<div className="flex text-[17px]">
-							创建代币
+							{t("Create.title")}
 						</div>
 						<button
 							className="absolute right-[16px] top-1/2 transform -translate-y-1/2 hover:opacity-70 transition-opacity cursor-pointer"
@@ -116,7 +118,7 @@ const CreateDialog: React.FC<CreateDialogProps> = ({ isOpen, onOpenChange }) => 
 					</div>
 					<ModalHeader className="flex justify-center items-center p-0 relative h-[48px] mt-[8px]">
 						<div className="flex text-[17px]">
-							创建成功
+							{t("Create.success")}
 						</div>
 						<button className="absolute right-[16px] top-1/2 transform -translate-y-1/2 hover:opacity-70 transition-opacity cursor-pointer" onClick={onSuccessOpenChange}>
 							<CloseIcon />
@@ -143,10 +145,10 @@ const CreateDialog: React.FC<CreateDialogProps> = ({ isOpen, onOpenChange }) => 
 							isDisabled={!createdToken?.address}
 							onPress={handleViewDetail}
 						>
-							查看详情
+							{t("Create.viewDetails")}
 						</Button>
 						<Button fullWidth className="mt-[12px] h-[44px] bg-[#FD7438] rounded-[8px] text-[15px] text-[#fff]" onPress={handleShare}>
-							分享到 X
+							{t("Create.shareToX")}
 						</Button>
 					</ModalBody>
 				</ModalContent>

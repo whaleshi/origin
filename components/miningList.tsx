@@ -4,6 +4,9 @@ import { ethers } from 'ethers';
 import _bignumber from 'bignumber.js';
 import { useState, useEffect } from 'react';
 import { useTranslation } from "react-i18next";
+import { Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
+import { InfoIcon } from "@/components/icons";
+import { format8 } from "@/utils/number";
 const BigNumber = _bignumber;
 import { useAuthStore } from "@/stores/auth";
 import MyAvatar from "@/components/avatar";
@@ -87,6 +90,26 @@ export const MiningList = ({ coinInfo }: MiningListProps) => {
 	const displayData = gameRecords || { list: [], total: 0 };
 	const hasRecords = (displayData?.list?.length ?? 0) > 0;
 	const showLoading = isLoading && !gameRecords;
+	const isGlobalTab = selectedTab === 'global';
+
+	const formatAmount = (value: string | number | bigint | null | undefined, decimals: number, precision: number) => {
+		const normalized = value ?? '0';
+		return BigNumber(ethers.formatUnits(BigInt(normalized), decimals))
+			.dp(precision, BigNumber.ROUND_DOWN)
+			.toFixed();
+	};
+
+	const formatRewardAmount = (row: any) => {
+		if (isGlobalTab && Number(row?.round_id) === 0) {
+			return "0";
+		}
+		const normalReward = row?.normal_reward_amount ?? '0';
+		const motherReward = row?.mother_reward_amount ?? '0';
+		return BigNumber(ethers.formatUnits(BigInt(normalReward), 8))
+			.plus(ethers.formatUnits(BigInt(motherReward), 8))
+			.dp(2, BigNumber.ROUND_DOWN)
+			.toFixed();
+	};
 
 	return (
 		<div className="w-full max-w-[600px] mt-[28px]">
@@ -116,14 +139,18 @@ export const MiningList = ({ coinInfo }: MiningListProps) => {
 
 			{/* Horizontal Scrollable Table */}
 			<div className="w-full overflow-x-auto mb-[30px]">
-				<div className={selectedTab === 'global' ? 'min-w-[564px]' : 'min-w-[604px]'}>
+				<div className={isGlobalTab ? 'min-w-[484px]' : 'min-w-[604px]'}>
 					{/* Table Header */}
 					<div className="flex border-b border-dashed border-[#25262A] h-[38px] items-center text-[12px] text-[#868789] px-[12px]">
 						<div className="w-[60px] md:flex-[0.6] shrink-0 text-left">{t('Game.round')}</div>
-						<div className={selectedTab != 'global' ? 'w-[100px] md:flex-[1] shrink-0 text-right' : 'w-[60px] md:flex-[0.6] shrink-0 text-right'}>{selectedTab === 'global' ? t('Game.player') : t('Game.buy')}</div>
-						<div className="w-[100px] md:flex-[1] shrink-0 text-right">{selectedTab === 'global' ? t('Game.buy') : t('Game.sell')}</div>
-						<div className="w-[100px] md:flex-[1] shrink-0 text-right">{selectedTab === 'global' ? t('Game.sell') : t('Game.netBuys')}</div>
-						<div className="w-[100px] md:flex-[1] shrink-0 text-right">{selectedTab === 'global' ? `${displayData?.is_trade ? t('Game.netBuys') : t('Game.netBuy')}` : t('Game.reward')}</div>
+						<div className={isGlobalTab ? 'w-[80px] md:flex-[0.8] shrink-0 text-right' : 'w-[100px] md:flex-[1] shrink-0 text-right'}>
+							{isGlobalTab ? t('Game.player') : t('Game.buy')}
+						</div>
+						{!isGlobalTab && (
+							<div className="w-[100px] md:flex-[1] shrink-0 text-right">{t('Game.sell')}</div>
+						)}
+						<div className="w-[100px] md:flex-[1] shrink-0 text-right">{displayData?.is_trade ? t('Game.netBuys') : t('Game.netBuy')}</div>
+						<div className="w-[100px] md:flex-[1] shrink-0 text-right">{t('Game.reward')}</div>
 						<div className="w-[120px] md:flex-[1.2] shrink-0 text-right">{t('Game.time')}</div>
 					</div>
 
@@ -132,37 +159,49 @@ export const MiningList = ({ coinInfo }: MiningListProps) => {
 						{showLoading ? (
 							<div className="flex h-[380px] items-center justify-center text-[14px] text-[#868789]">
 								<div className="flex flex-col items-center gap-[12px]">
-									<img src="/images/logo.png" alt="Loading" className="w-[40px] h-[40px]" />
+									<img src="/images/loading.gif" alt="Loading" className="w-[40px] h-[40px]" />
 								</div>
 							</div>
 						) : hasRecords ? (
 							displayData.list.map((row: any, index: any) => (
 								<div key={index} className="flex min-h-[38px] items-center text-[12px] hover:bg-[#191B1F] transition-colors cursor-pointer px-[12px] rounded-[8px] py-[2px]">
 									<div className="w-[60px] md:flex-[0.6] shrink-0 text-[#fff] break-words text-left">#{row?.show_round_id}</div>
-									<div className={selectedTab != 'global' ? 'w-[100px] md:flex-[1] shrink-0 text-[#fff] break-words text-right flex items-center justify-end gap-[4px]' : 'w-[60px] md:flex-[0.6] shrink-0 text-[#fff] break-words text-right flex items-center justify-end gap-[4px]'}>
+									<div className={isGlobalTab ? 'w-[80px] md:flex-[0.8] shrink-0 text-[#fff] break-words text-right flex items-center justify-end gap-[4px]' : 'w-[100px] md:flex-[1] shrink-0 text-[#fff] break-words text-right flex items-center justify-end gap-[4px]'}>
 										{
-											selectedTab != 'global' && <MyAvatar src="/images/origin.png" alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
+											!isGlobalTab && <MyAvatar src="/images/origin.png" alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
 										}
-										{selectedTab === 'global' ? row?.participant_count : BigNumber(ethers.formatUnits(BigInt(row?.buy_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed()}
+										{isGlobalTab ? row?.participant_count : formatAmount(row?.buy_amount || '0', 8, 4)}
 									</div>
-									<div className="w-[100px] md:flex-[1] shrink-0 text-[#fff] break-words overflow-hidden text-right flex items-center justify-end gap-[4px]">
-										<MyAvatar src="/images/origin.png" alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
-										{selectedTab === 'global' ? BigNumber(ethers.formatUnits(BigInt(row?.total_buy_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed() : BigNumber(ethers.formatUnits(BigInt(row?.sell_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed()}
-									</div>
+									{!isGlobalTab && (
+										<div className="w-[100px] md:flex-[1] shrink-0 text-[#fff] break-words overflow-hidden text-right flex items-center justify-end gap-[4px]">
+											<MyAvatar src="/images/origin.png" alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
+											{formatAmount(row?.sell_amount || '0', 8, 4)}
+										</div>
+									)}
 									<div className="w-[100px] md:flex-[1] shrink-0 text-[#fff] break-words text-right flex items-center justify-end gap-[4px]">
 										<MyAvatar src="/images/origin.png" alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
-										{selectedTab === 'global'
-											? BigNumber(ethers.formatUnits(BigInt(row?.total_sell_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed()
-											: BigNumber(ethers.formatUnits(BigInt(row?.is_trade ? row?.trade_amount : row?.net_buy_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed()}
+										{isGlobalTab
+											? formatAmount(row?.is_trade ? row?.total_trade_amount : row?.total_net_buy_amount || '0', 8, 4)
+											: formatAmount(row?.is_trade ? row?.trade_amount : row?.net_buy_amount || '0', 8, 4)}
 									</div>
 									<div className="w-[100px] md:flex-[1] shrink-0 flex items-center justify-end gap-[4px] min-w-0">
-										{
-											selectedTab != 'global' ? <MyAvatar src={coinInfo?.image_url} alt="icon" className="w-[14px] h-[14px] bg-[transparent] grayscale" /> : <MyAvatar src="/images/origin.png" alt="icon" className="w-[14px] h-[14px] bg-[transparent]" />
-										}
-										{selectedTab === 'global'
-											? BigNumber(ethers.formatUnits(BigInt(row?.is_trade ? row?.total_trade_amount : row?.total_net_buy_amount || '0'), 8)).dp(4, BigNumber.ROUND_DOWN).toFixed()
-											: BigNumber(ethers.formatUnits(BigInt(row?.normal_reward_amount || '0'), 8)).plus(ethers.formatUnits(BigInt(row?.mother_reward_amount || '0'), 8)).dp(2, BigNumber.ROUND_DOWN).toFixed()
-										}
+										<MyAvatar src={coinInfo?.image_url} alt="icon" className="w-[14px] h-[14px] bg-[transparent] grayscale" />
+										{formatRewardAmount(row)}
+										{isGlobalTab && Number(row?.round_id) === 0 && (
+											<Popover placement="top" showArrow={true}>
+												<PopoverTrigger>
+													<div><InfoIcon className="cursor-pointer w-[12px] h-[12px]" /></div>
+												</PopoverTrigger>
+												<PopoverContent>
+													<div className="max-w-[270px] text-[12px] text-[#E6E6E6]">
+														{t("MiningList.globalInactiveDesc", {
+															metric: displayData?.is_trade ? t("Game.netBuys") : t("Game.netBuy"),
+															amount: format8(row?.mining_info?.min_active_amount)
+														})}
+													</div>
+												</PopoverContent>
+											</Popover>
+										)}
 									</div>
 									<div className="w-[120px] md:flex-[1.2] shrink-0 text-[#fff] text-right text-[11px] leading-tight">{row?.created_ts ? new Date(row?.created_ts * 1000).toLocaleString() : '-'}</div>
 								</div>

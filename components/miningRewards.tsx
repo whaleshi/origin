@@ -74,7 +74,7 @@ export default function MiningRewards({ coinInfo }: MiningRewardsProps) {
 		const assetManagerAddress = DEFAULT_CHAIN_CONFIG?.assetManager as `0x${string}` | undefined;
 		const extraInfo = coinInfo?.mint;
 		if (!assetManagerAddress || !extraInfo) {
-			showErrorToast("领取失败");
+			showErrorToast(t("Toast.claimFailed"));
 			return;
 		}
 		try {
@@ -90,33 +90,57 @@ export default function MiningRewards({ coinInfo }: MiningRewardsProps) {
 				chainId: DEFAULT_CHAIN_ID,
 			});
 			if (hash) {
-				showLoadingToast("领取已发起", `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
+				showLoadingToast(t("Toast.claimSubmitted"), `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
 			}
 			if (publicClient && hash) {
 				await publicClient.waitForTransactionReceipt({ hash });
-				showSuccessToast("领取成功", `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
+				showSuccessToast(t("Toast.claimSuccess"), `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
 				queryClient.invalidateQueries({ queryKey: ["miningUserAsset", address, mint] });
 			}
 		} catch (error) {
 			console.error("deposit claim error:", error);
-			showErrorToast("领取失败");
+			showErrorToast(t("Toast.claimFailed"));
 		} finally {
 			setIsClaiming(false);
 		}
 	};
 
 	return <div className="w-full">
-		<div className="text-[18px] text-[#fff] font-semibold">挖矿奖励</div>
+		<div className="text-[18px] text-[#fff] font-semibold">{t("MiningRewards.title")}</div>
 		<div className="mt-[12px] border-[#25262A] border-[1px] border-dashed p-[12px] rounded-[8px]">
 			<div className="flex items-center justify-between text-[13px] text-[#868789] whitespace-nowrap">
-				<div className="flex-1 truncate">未精炼 <span className="truncate">{tokenSymbol}</span></div>
+				<div className="flex-1 truncate flex items-center max-w-[60%]">{t("Common.unrefined")}
+					<span className="truncate ml-[4px]">{tokenSymbol}</span>
+					<Popover placement="top" showArrow={true}>
+						<PopoverTrigger>
+							<div><InfoIcon className="cursor-pointer w-[12px] h-[12px]" /></div>
+						</PopoverTrigger>
+						<PopoverContent>
+							<div className="max-w-[270px] text-[12px] text-[#E6E6E6]">
+								{t("MiningRewards.unrefinedDesc", { tokenSymbol })}
+							</div>
+						</PopoverContent>
+					</Popover>
+				</div>
 				<div className="text-[#fff] flex items-center gap-[4px]">
 					<MyAvatar src={tokenAvatar} alt="icon" className="w-[16px] h-[16px] bg-[transparent] grayscale" />
 					{format8(unrefinedAmount)}
 				</div>
 			</div>
 			<div className="flex items-center justify-between text-[13px] text-[#868789] mt-[12px] whitespace-nowrap">
-				<div className="flex-1 truncate">精炼 <span className="truncate">{tokenSymbol}</span></div>
+				<div className="flex-1 truncate flex items-center max-w-[60%]">{t("Common.refined")}
+					<span className="truncate ml-[4px]">{tokenSymbol}</span>
+					<Popover placement="top" showArrow={true}>
+						<PopoverTrigger>
+							<div><InfoIcon className="cursor-pointer w-[12px] h-[12px]" /></div>
+						</PopoverTrigger>
+						<PopoverContent>
+							<div className="max-w-[270px] text-[12px] text-[#E6E6E6]">
+								{t("MiningRewards.refinedDesc", { tokenSymbol })}
+							</div>
+						</PopoverContent>
+					</Popover>
+				</div>
 				<div className="text-[#fff] flex items-center gap-[4px]">
 					<MyAvatar src={tokenAvatar} alt="icon" className="w-[16px] h-[16px] bg-[transparent]" />
 					{format8(refinedAmount)}
@@ -130,7 +154,7 @@ export default function MiningRewards({ coinInfo }: MiningRewardsProps) {
 				className="h-[44px] mt-[16px] bg-[transparent] text-[15px] text-[#FD7438] border-[1px] border-[#FD7438] disabled:opacity-60 disabled:text-[#868789] disabled:border-[#36383B]"
 				onPress={onOpen}
 			>
-				领取
+				{t("MiningRewards.claim")}
 			</Button>
 		</div>
 		<Modal
@@ -174,7 +198,7 @@ export default function MiningRewards({ coinInfo }: MiningRewardsProps) {
 											</PopoverTrigger>
 											<PopoverContent>
 												<div className="max-w-[270px] text-[12px] text-[#E6E6E6]">
-													{/* {t("Common.unrefinedDesc")} */}
+													{t("MiningRewards.unrefinedDesc", { tokenSymbol })}
 												</div>
 											</PopoverContent>
 										</Popover>
@@ -196,7 +220,7 @@ export default function MiningRewards({ coinInfo }: MiningRewardsProps) {
 											</PopoverTrigger>
 											<PopoverContent>
 												<div className="max-w-[270px] text-[12px] text-[#E6E6E6]">
-													{/* {t("Common.refinedDesc")} */}
+													{t("MiningRewards.refinedDesc", { tokenSymbol })}
 												</div>
 											</PopoverContent>
 										</Popover>

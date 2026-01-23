@@ -1,4 +1,4 @@
-import { CopyIcon, LogoIcon, SelectDownIcon, SettingIcon, SwapIcon, ZuanIcon, ZuanRightIcon } from "@/components/icons";
+import { CopyIcon, SelectDownIcon, SettingIcon, SwapIcon, ZuanIcon, ZuanRightIcon } from "@/components/icons";
 import { Input, Button } from "@heroui/react";
 import { useEffect, useState } from "react";
 import MyAvatar from "@/components/avatar";
@@ -17,11 +17,12 @@ import { useSwapTrade } from "@/hooks/useSwapTrade";
 import { useAuthStore } from "@/stores/auth";
 import { showErrorToast, showLoadingToast, showSuccessToast } from "@/utils/toastHelpers";
 import { formatBigNumber } from "@/utils/formatBigNumber";
-import { formatPercent, getPercentClass } from "@/utils/number";
+import { formatPercent, getPercentClass, format8 } from "@/utils/number";
 import { shortenAddress } from "@/utils";
 import { customToast } from "@/components/customToast";
 import useClipboard from "@/hooks/useCopyToClipboard";
 import usePrivyLogin from "@/hooks/usePrivyLogin";
+import { useTranslation } from "react-i18next";
 
 const getAddressUrl = (address: string | null | undefined) => {
 	const base = DEFAULT_CHAIN_CONFIG?.explorerUrl;
@@ -30,6 +31,7 @@ const getAddressUrl = (address: string | null | undefined) => {
 };
 
 export default function SwapPage() {
+	const { t } = useTranslation();
 	const router = useRouter();
 	const addrParam = router.query.addr;
 	const mint = Array.isArray(addrParam) ? addrParam[0] : (addrParam as string | undefined);
@@ -65,9 +67,9 @@ export default function SwapPage() {
 		if (coinInfo) setSelectedCoin(coinInfo);
 	}, [mint, coinInfo]);
 
-	const selectedSymbol = selectedCoin?.symbol ?? "Select";
+	const selectedSymbol = selectedCoin?.symbol ?? t("Swap.selectTokenPrompt");
 	const selectedAvatar = selectedCoin?.image_url || "/images/default.png";
-	const originSymbol = DEFAULT_CHAIN_CONFIG?.originSymbol ?? "起源";
+	const originSymbol = DEFAULT_CHAIN_CONFIG?.originSymbol ?? t("Swap.originSymbol");
 	const originAddress = DEFAULT_CHAIN_CONFIG?.origin as `0x${string}` | undefined;
 	const swapRouterAddress = DEFAULT_CHAIN_CONFIG?.swapRouter as `0x${string}` | undefined;
 	const { tokenBalanceText: originBalanceText, tokenBalanceValue: originBalanceValue } = useTokenBalance(originAddress, 18);
@@ -100,18 +102,18 @@ export default function SwapPage() {
 		originAddress,
 		swapRouterAddress,
 		onSwapSubmitted: ({ hash, side }) => {
-			const actionText = side === "buy" ? "买入" : "卖出";
-			showLoadingToast(`${actionText}已发起`, `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
+			const actionText = side === "buy" ? t("Actions.buy") : t("Actions.sell");
+			showLoadingToast(t("Toast.actionSubmitted", { action: actionText }), `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
 		},
 		onSwapSuccess: ({ hash, side }) => {
-			const actionText = side === "buy" ? "买入" : "卖出";
-			showSuccessToast(`${actionText}成功`, `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
+			const actionText = side === "buy" ? t("Actions.buy") : t("Actions.sell");
+			showSuccessToast(t("Toast.actionSuccess", { action: actionText }), `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
 			setTopAmount("");
 			setBottomAmount("");
 		},
 		onSwapError: ({ side }) => {
-			const actionText = side === "buy" ? "买入" : "卖出";
-			showErrorToast(`${actionText}失败`);
+			const actionText = side === "buy" ? t("Actions.buy") : t("Actions.sell");
+			showErrorToast(t("Toast.actionFailed", { action: actionText }));
 		},
 	});
 	useEffect(() => {
@@ -124,11 +126,11 @@ export default function SwapPage() {
 	const isInsufficient = hasBalanceData && amountWei > topBalanceValue;
 	const canSwap = !!address && hasSelectedToken && hasAmount && !isInsufficient;
 	const buttonLabel = (() => {
-		if (!address) return "Connect Wallet";
-		if (!hasSelectedToken) return "Select a token";
-		if (!hasAmount) return "Enter an amount";
-		if (isInsufficient) return "Insufficient balance";
-		return "Swap";
+		if (!address) return t("Actions.connectWallet");
+		if (!hasSelectedToken) return t("Swap.selectTokenPrompt");
+		if (!hasAmount) return t("Swap.enterAmountPrompt");
+		if (isInsufficient) return t("Swap.insufficientBalance");
+		return t("Swap.swap");
 	})();
 	const buttonClassName = canSwap
 		? "h-[48px] bg-[#fff] text-[#000] mt-[16px]"
@@ -151,19 +153,19 @@ export default function SwapPage() {
 
 	return <div className="flex flex-col items-center w-full px-[14px]">
 		<div className="w-full max-w-[600px] flex items-center justify-between mt-[24px]">
-			<div className="text-[28px] text-[#fff] font-bold">SWAP</div>
-			<div className="w-[100px] h-[32px] rounded-r-[16px] flex items-center justify-center gap-[2px] cursor-pointer"
+			<div className="text-[28px] text-[#fff] font-bold">{t("Swap.title")}</div>
+			<div className="px-[12px] h-[32px] rounded-r-[16px] flex items-center justify-center gap-[2px] cursor-pointer"
 				style={{ background: "linear-gradient(90deg, rgba(239, 176, 0, 0.00) 0%, rgba(239, 176, 0, 0.25) 100%)" }}
 				onClick={() => {
 					if (!selectedCoin?.mint) {
-						customToast({ title: "请先选择代币", type: "error" });
+						customToast({ title: t("Swap.selectTokenPrompt"), type: "error" });
 						return;
 					}
 					setIsMiningDialogOpen(true);
 				}}
 			>
 				<ZuanIcon />
-				<div className="text-[14px] text-[#EFB000]">挖矿奖励</div>
+				<div className="text-[14px] text-[#EFB000]">{t("Swap.miningRewards")}</div>
 				<ZuanRightIcon />
 			</div>
 		</div>
@@ -185,7 +187,7 @@ export default function SwapPage() {
 					topIsOrigin ? (
 						<div className="shrink-0 flex items-center gap-[6px] h-[36px] border-[1px] border-[#303135] px-[8px] rounded-full min-w-0 max-w-[45%]">
 							<div className="shrink-0">
-								<LogoIcon className="w-[24px] h-[24px]" />
+								<MyAvatar src="/images/origin.png" alt="icon" className="w-[24px] h-[24px] bg-[transparent]" />
 							</div>
 							<div className="text-[16px] text-[#fff] truncate">{originSymbol}</div>
 						</div>
@@ -206,12 +208,12 @@ export default function SwapPage() {
 			/>
 			<div className="h-[52px] flex items-center gap-[20px]">
 				<div className="text-[13px] text-[#868789] flex-1 flex items-center gap-[4px] min-w-0 whitespace-nowrap">
-					<span>钱包余额:</span>
+					<span>{t("Swap.walletBalance")}:</span>
 					<span className="text-[#fff] truncate">{topBalanceDisplay}</span>
 				</div>
 				<SwapIcon className="w-[36px] h-[36px] rotate-90 cursor-pointer" onClick={handleSwapSides} />
 				<div className="flex items-center justify-end gap-[4px] text-[13px] text-[#868789] flex-1">
-					滑点<span className="text-[#fff]">{slippage}%</span>
+					{t("Swap.slippage")}<span className="text-[#fff]">{slippage}%</span>
 					<SettingIcon className="cursor-pointer" onClick={() => setIsSlippageOpen(true)} />
 				</div>
 			</div>
@@ -230,7 +232,7 @@ export default function SwapPage() {
 					bottomIsOrigin ? (
 						<div className="shrink-0 flex items-center gap-[6px] h-[36px] border-[1px] border-[#303135] px-[8px] rounded-full min-w-0 max-w-[45%]">
 							<div className="shrink-0">
-								<LogoIcon className="w-[24px] h-[24px]" />
+								<MyAvatar src="/images/origin.png" alt="icon" className="w-[24px] h-[24px] bg-[transparent]" />
 							</div>
 							<div className="text-[16px] text-[#fff] truncate">{originSymbol}</div>
 						</div>
@@ -261,7 +263,7 @@ export default function SwapPage() {
 						return;
 					}
 					if (isInsufficient) {
-						customToast({ title: "余额不足", type: "error" });
+						customToast({ title: t("Toast.balanceInsufficient"), type: "error" });
 						return;
 					}
 					if (tradeSide === "buy") {
@@ -278,19 +280,19 @@ export default function SwapPage() {
 					<div className="mt-[32px] border-[1px] border-[#25262A] border-dashed rounded-[8px] overflow-hidden">
 						<div className="h-[60px] flex">
 							<div className="text-[16px] text-[#fff] border-r-[1px] border-[#25262A] border-dashed flex flex-1 flex-col items-center justify-center gap-[2px]">
-								${formatBigNumber(coinInfo?.market_cap_f)}<span className="text-[12px] text-[#868789]">市值</span>
+								${formatBigNumber(coinInfo?.market_cap_f)}<span className="text-[12px] text-[#868789]">{t("Swap.marketCap")}</span>
 							</div>
 							<div className="text-[16px] text-[#fff] border-r-[1px] border-[#25262A] border-dashed flex flex-1 flex-col items-center justify-center gap-[2px]">
-								${formatBigNumber(coinInfo?.price_usd_f)}<span className="text-[12px] text-[#868789]">价格</span>
+								${formatBigNumber(coinInfo?.price_usd_f)}<span className="text-[12px] text-[#868789]">{t("Swap.price")}</span>
 							</div>
 						</div>
 						<div className="h-[60px] flex border-t-[1px] border-[#25262A] border-dashed">
 							<div className={`text-[16px] ${changeClass} border-r-[1px] border-[#25262A] border-dashed flex flex-1 flex-col items-center justify-center gap-[2px]`}>
-								{displayChange}<span className="text-[12px] text-[#868789]">24H 涨跌</span>
+								{displayChange}<span className="text-[12px] text-[#868789]">{t("Swap.change24h")}</span>
 							</div>
 							<div className="text-[16px] text-[#fff] border-r-[1px] border-[#25262A] border-dashed flex flex-1 flex-col items-center justify-center gap-[2px]">
-								${formatBigNumber(coinInfo?.external_liquidity)}
-								<span className="text-[12px] text-[#868789]">流动性</span>
+								${formatBigNumber(format8(coinInfo?.external_liquidity))}
+								<span className="text-[12px] text-[#868789]">{t("Swap.liquidity")}</span>
 							</div>
 						</div>
 						<div className="h-[60px] text-[16px] text-[#fff] border-t-[1px] border-[#25262A] border-dashed flex flex-1 flex-col items-center justify-center gap-[2px]">
@@ -312,7 +314,7 @@ export default function SwapPage() {
 									<CopyIcon className="cursor-pointer" />
 								</button>
 							</a>
-							<span className="text-[12px] text-[#868789]">合约地址</span>
+							<span className="text-[12px] text-[#868789]">{t("Swap.contractAddress")}</span>
 						</div>
 					</div>
 					{/* <div><SwapAbout coinInfo={coinInfo} /></div> */}

@@ -5,8 +5,10 @@ import { useQuery } from "@tanstack/react-query";
 import BigNumber from "bignumber.js";
 import { DEFAULT_CHAIN_CONFIG } from "@/config/chains";
 import { useRouter } from "next/router";
+import { useTranslation } from "react-i18next";
 
 export default function TopScroll() {
+	const { t } = useTranslation();
 	const router = useRouter();
 	const colorSchemes = [
 		{ bg: '#EC42FF33', text: '#EC42FF' },
@@ -72,7 +74,7 @@ export default function TopScroll() {
 			id: item?.id ?? item?.swap_id ?? index,
 			address: formatAddress(item?.user),
 			rawAddress: item?.user,
-			type: item?.is_buy ? '买入' : '卖出',
+			type: item?.is_buy ? t("Actions.buy") : t("Actions.sell"),
 			amount: formatAmount(item?.is_buy ? item?.input_amount : item?.output_amount, 'BNB'),
 			token: formatToken(item?.is_buy ? item?.output_symbol : item?.input_symbol),
 			mint: item?.is_buy ? item?.base_token : item?.quote_token,

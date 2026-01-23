@@ -6,6 +6,7 @@ import ScrollingName from "./scrollingName";
 import BigNumber from "bignumber.js";
 import { Skeleton } from "@heroui/react";
 import useCountdown from "@/hooks/useCountdown";
+import { useTranslation } from "react-i18next";
 
 type MeTokenItemType = "holder" | "mining" | "created";
 
@@ -26,6 +27,7 @@ const formatPrice = (value: number | string | null | undefined, fallback: string
 };
 
 export default function MeTokenItem({ type, data, tokenBalanceText, tokenBalanceValue, onClick }: MeTokenItemProps) {
+	const { t } = useTranslation();
 	const tokenInfo = getTokenInfo(data);
 	const displayName = tokenInfo?.name ?? "--";
 	const displaySymbol = tokenInfo?.symbol ?? "--";
@@ -91,7 +93,7 @@ export default function MeTokenItem({ type, data, tokenBalanceText, tokenBalance
 				{isMining ? (
 					<div className='flex flex-col justify-between items-end'>
 						<div className="text-[14px] text-[#fff]">{miningShareText}</div>
-						<div className="text-[12px] text-[#4A4B4E]">本轮占比</div>
+						<div className="text-[12px] text-[#4A4B4E]">{t("MiningAbout.myRatio")}</div>
 					</div>
 				) : isOnX === 0 ? (
 					<div

@@ -1,10 +1,11 @@
 import { customToast } from "@/components/customToast";
+import i18n from "@/i18n";
 
 // 预定义的常用 toast 类型
 export const showSuccessToast = (title: string, description?: string) => {
   return customToast({
     title,
-    description: description || "操作成功完成",
+    description: description || i18n.t("Toast.successDefault"),
     type: 'success',
   });
 };
@@ -12,7 +13,7 @@ export const showSuccessToast = (title: string, description?: string) => {
 export const showErrorToast = (title: string, description?: string) => {
   return customToast({
     title,
-    description: description || "操作失败，请重试",
+    description: description || i18n.t("Toast.errorDefault"),
     type: 'error',
   });
 };
@@ -20,7 +21,7 @@ export const showErrorToast = (title: string, description?: string) => {
 export const showLoadingToast = (title: string, description?: string) => {
   return customToast({
     title,
-    description: description || "请稍候...",
+    description: description || i18n.t("Toast.loadingDefault"),
     type: 'loading',
   });
 };
@@ -39,8 +40,8 @@ export const showTransactionToast = (txHash: string) => {
 
 export const showDeploymentSuccessToast = (squares: number[], amount: string) => {
   return customToast({
-    title: '部署成功',
-    description: `成功部署 ${squares.length} 个格子，每格 ${amount} BNB`,
+    title: i18n.t("Toast.deploymentSuccessTitle"),
+    description: i18n.t("Toast.deploymentSuccessDesc", { count: squares.length, amount }),
     type: 'success',
     button: {
       label: 'OK',

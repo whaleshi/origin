@@ -112,7 +112,7 @@ export default function App({ Component, pageProps }: AppProps) {
 		<>
 			<Head>
 				{/* 预加载关键图片 */}
-				<link rel="preload" href="/images/logo.png" as="image" />
+				<link rel="preload" href="/images/loading.gif" as="image" />
 			</Head>
 			<HeadWeb tokenMetadata={pageProps?.tokenMetadata} />
 			{

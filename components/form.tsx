@@ -9,6 +9,7 @@ import { getLuckyToken } from "@/service/api";
 import { decodeEventLog } from "viem";
 import BigNumber from "bignumber.js";
 import { showErrorToast, showLoadingToast } from "@/utils/toastHelpers";
+import { useTranslation } from "react-i18next";
 
 const MAX_AVATAR_MB = 5;
 const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
@@ -24,6 +25,7 @@ type CreateFormProps = {
 };
 
 export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
+	const { t } = useTranslation();
 
 	const [nameVal, setNameVal] = useState("");
 	const [tickerVal, setTickerVal] = useState("");
@@ -57,16 +59,16 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 
 	const errors = useMemo(() => {
 		const nextErrors: Record<string, string> = {};
-		if (!avatarFile) nextErrors.avatar = "请上传头像";
+		if (!avatarFile) nextErrors.avatar = t("Create.avatarRequired");
 		if (avatarError) nextErrors.avatar = avatarError;
-		if (!nameVal.trim()) nextErrors.name = "请输入代币名称";
-		if (!tickerVal.trim()) nextErrors.ticker = "输入代币符号";
-		if (amountVal && !/^\d*\.?\d{0,6}$/.test(amountVal)) nextErrors.amount = "请输入正确的数量";
-		if (websiteVal && !/^https?:\/\/\S+$/i.test(websiteVal)) nextErrors.website = "请输入有效的网站链接";
-		if (xVal && !/^(@|https?:\/\/)\S+$/i.test(xVal)) nextErrors.x = "请输入有效的 X 链接或用户名";
-		if (telegramVal && !/^(@|https?:\/\/)\S+$/i.test(telegramVal)) nextErrors.telegram = "请输入有效的 Telegram 链接或用户名";
+		if (!nameVal.trim()) nextErrors.name = t("Create.nameRequired");
+		if (!tickerVal.trim()) nextErrors.ticker = t("Create.tickerRequired");
+		if (amountVal && !/^\d*\.?\d{0,6}$/.test(amountVal)) nextErrors.amount = t("Create.amountInvalid");
+		if (websiteVal && !/^https?:\/\/\S+$/i.test(websiteVal)) nextErrors.website = t("Create.websiteInvalid");
+		if (xVal && !/^(@|https?:\/\/)\S+$/i.test(xVal)) nextErrors.x = t("Create.xInvalid");
+		if (telegramVal && !/^(@|https?:\/\/)\S+$/i.test(telegramVal)) nextErrors.telegram = t("Create.telegramInvalid");
 		return nextErrors;
-	}, [nameVal, tickerVal, amountVal, websiteVal, xVal, telegramVal, avatarFile, avatarError]);
+	}, [nameVal, tickerVal, amountVal, websiteVal, xVal, telegramVal, avatarFile, avatarError, t]);
 
 	const isValid = Object.keys(errors).length === 0;
 	const avatarValid = !!avatarFile && !errors.avatar;
@@ -92,12 +94,12 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 			};
 			const res = await pinFileToIPFS(params, "json");
 			if (!res) {
-				showErrorToast("上传失败");
+				showErrorToast(t("Toast.uploadFailed"));
 				return false;
 			}
 			return res;
 		} catch (error) {
-			showErrorToast("上传失败");
+			showErrorToast(t("Toast.uploadFailed"));
 			return false;
 		}
 	};
@@ -108,7 +110,7 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 		if (!isValid) return;
 		setCreateLoading(true);
 		try {
-			showLoadingToast("创建中", "请在钱包内确认交易");
+			showLoadingToast(t("Toast.createInProgress"), t("Toast.confirmInWallet"));
 			const uploadResult = await uploadFile();
 			if (!uploadResult) {
 				return;
@@ -119,7 +121,7 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 				CHAINS_CONFIG.CHAIN_CONFIG[activeChainId as keyof typeof CHAINS_CONFIG.CHAIN_CONFIG]?.tokenFactory;
 			if (!tokenFactoryAddress) {
 				console.error("TokenFactory address not configured for chain:", activeChainId);
-				showErrorToast("创建失败");
+				showErrorToast(t("Toast.createFailed"));
 				return;
 			}
 			let salt = "";
@@ -128,12 +130,12 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 				salt = res?.data?.salt ?? "";
 			} catch (error) {
 				console.error("getLuckyToken error:", error);
-				showErrorToast("创建失败");
+				showErrorToast(t("Toast.createFailed"));
 				return;
 			}
 			if (!salt) {
 				console.error("getLuckyToken missing salt");
-				showErrorToast("创建失败");
+				showErrorToast(t("Toast.createFailed"));
 				return;
 			}
 			const amountWei = parseAmountWei(amountVal);
@@ -152,7 +154,7 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 			if (publicClient && hash) {
 				const receipt = await publicClient.waitForTransactionReceipt({ hash });
 				if (receipt.status !== "success") {
-					showErrorToast("创建失败");
+					showErrorToast(t("Toast.createFailed"));
 					return;
 				}
 				for (const log of receipt.logs) {
@@ -183,7 +185,7 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 			});
 		} catch (error) {
 			console.error("createToken error:", error);
-			showErrorToast("创建失败");
+			showErrorToast(t("Toast.createFailed"));
 		} finally {
 			setCreateLoading(false);
 		}
@@ -194,7 +196,7 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 			<Form className="w-full px-[16px] pt-[8px] gap-[24px] min-h-[calc(100vh-56px-48px-52px)] md:min-h-[50vh]" onSubmit={onSubmit}>
 				<div className="flex flex-col gap-[8px]">
 					<div className="text-[14px] text-[#868789] font-bold">
-						头像<span className="text-[#f31260] ml-[2px]">*</span>
+						{t("Create.avatar")}<span className="text-[#f31260] ml-[2px]">*</span>
 					</div>
 					<div className="flex items-center gap-[12px]">
 						<label
@@ -257,11 +259,11 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 						input: "text-[14px] text-white placeholder:text-[#4A4B4E]",
 					}}
 					isRequired
-					errorMessage="请输入代币名称"
-					label={<span className="text-[14px] text-[#868789]">名称</span>}
+					errorMessage={t("Create.nameRequired")}
+					label={<span className="text-[14px] text-[#868789]">{t("Create.name")}</span>}
 					labelPlacement="outside-top"
 					name="name"
-					placeholder="请输入代币名称"
+					placeholder={t("Create.namePlaceholder")}
 					variant="bordered"
 					value={nameVal}
 					onChange={(e) => setNameVal(e.target.value)}
@@ -274,11 +276,11 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 						input: "text-[14px] text-white placeholder:text-[#4A4B4E]",
 					}}
 					isRequired
-					errorMessage="输入代币符号"
-					label={<span className="text-[14px] text-[#868789]">Ticker</span>}
+					errorMessage={t("Create.amountInvalid")}
+					label={<span className="text-[14px] text-[#868789]">{t("Create.ticker")}</span>}
 					labelPlacement="outside-top"
 					name="ticker"
-					placeholder="输入代币符号"
+					placeholder={t("Create.tickerPlaceholder")}
 					variant="bordered"
 					value={tickerVal}
 					onChange={(e) => setTickerVal(e.target.value)}
@@ -293,12 +295,12 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 					}}
 					label={
 						<div className="flex items-center text-[14px]">
-							<span className="text-[#868789]">描述</span>
-							<span className="text-[#4A4B4E]">（可选）</span>
+							<span className="text-[#868789]">{t("Create.description")}</span>
+							<span className="text-[#4A4B4E]">{t("Common.optional")}</span>
 						</div>
 					}
 					labelPlacement="outside"
-					placeholder="输入代币描述"
+					placeholder={t("Create.descriptionPlaceholder")}
 					variant="bordered"
 					name="description"
 					value={descriptionVal}
@@ -310,11 +312,11 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 						inputWrapper: "h-[44px] rounded-[8px] border-[#25262A] bg-[#191B1F] border-1",
 						input: "text-[14px] text-white placeholder:text-[#4A4B4E]",
 					}}
-					errorMessage="输入代币符号"
+					errorMessage={t("Create.tickerRequired")}
 					label={
 						<div className="flex items-center text-[14px]">
-							<span className="text-[#868789]">提前买入</span>
-							<span className="text-[#4A4B4E]">（可选）</span>
+							<span className="text-[#868789]">{t("Create.preBuy")}</span>
+							<span className="text-[#4A4B4E]">{t("Common.optional")}</span>
 						</div>
 					}
 					labelPlacement="outside-top"
@@ -340,8 +342,8 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 							}}
 							label={
 								<div className="flex items-center text-[14px]">
-									<span className="text-[#868789]">网站</span>
-									<span className="text-[#4A4B4E]">（可选）</span>
+									<span className="text-[#868789]">{t("Create.website")}</span>
+									<span className="text-[#4A4B4E]">{t("Common.optional")}</span>
 								</div>
 							}
 							labelPlacement="outside-top"
@@ -361,8 +363,8 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 							}}
 							label={
 								<div className="flex items-center text-[14px]">
-									<span className="text-[#868789]">X</span>
-									<span className="text-[#4A4B4E]">（可选）</span>
+									<span className="text-[#868789]">{t("Create.x")}</span>
+									<span className="text-[#4A4B4E]">{t("Common.optional")}</span>
 								</div>
 							}
 							labelPlacement="outside-top"
@@ -382,8 +384,8 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 							}}
 							label={
 								<div className="flex items-center text-[14px]">
-									<span className="text-[#868789]">Telegram</span>
-									<span className="text-[#4A4B4E]">（可选）</span>
+									<span className="text-[#868789]">{t("Create.telegram")}</span>
+									<span className="text-[#4A4B4E]">{t("Common.optional")}</span>
 								</div>
 							}
 							labelPlacement="outside-top"
@@ -403,7 +405,7 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 					onClick={() => setShowSocial((prev) => !prev)}
 					className="w-[120px] h-[36px] border-[1px] border-[#303135] rounded-full text-[12px] text-[#868789] flex items-center justify-center cursor-pointer mx-auto"
 				>
-					{showSocial ? "收起社交链接" : "添加社交链接"}
+					{showSocial ? t("Actions.collapseSocialLinks") : t("Actions.addSocialLinks")}
 				</button>
 				<div className="flex-1"></div>
 				<Button
@@ -413,7 +415,7 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 					className={`w-full mt-[12px] rounded-[8px] h-[48px] text-[15px] disabled:opacity-60 ${avatarValid ? "bg-[#FD7438] text-[#fff]" : "bg-[#36383B] text-[#868789]"
 						}`}
 				>
-					提交
+					{t("Create.submit")}
 				</Button>
 			</Form>
 		</div>

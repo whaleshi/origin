@@ -6,10 +6,11 @@ import useClipboard from "@/hooks/useCopyToClipboard";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useState } from "react";
 import { Button, Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from "@heroui/react";
+import { useTranslation } from "react-i18next";
 
 
 export default function CreatePage() {
-
+	const { t } = useTranslation();
 	const router = useRouter();
 	const isMobile = useIsMobile();
 	const [hasChecked, setHasChecked] = useState(false);
@@ -37,7 +38,7 @@ export default function CreatePage() {
 		if (!createdToken) return;
 		const origin = typeof window !== "undefined" ? window.location.origin : "";
 		const shareUrl = createdToken.address ? `${origin}/token/${createdToken.address}` : origin;
-		const text = `我刚创建了 ${createdToken.name} (${createdToken.symbol})`;
+		const text = t("Create.shareText", { name: createdToken.name, symbol: createdToken.symbol });
 		const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`;
 		window.open(url, "_blank", "noopener,noreferrer");
 	};
@@ -63,7 +64,7 @@ export default function CreatePage() {
 		<div className="flex flex-col items-center w-full">
 			<div className="h-[48px] flex items-center px-[16px] md:hidden w-full">
 				<BackIcon />
-				<div className="flex-1 flex items-center justify-center text-[17px] text-[#E6E6E6]">创建代币</div>
+				<div className="flex-1 flex items-center justify-center text-[17px] text-[#E6E6E6]">{t("Create.title")}</div>
 				<div className="w-[24px] h-[24px]"></div>
 			</div>
 			<CreateForm
@@ -94,7 +95,7 @@ export default function CreatePage() {
 					</div>
 					<ModalHeader className="flex justify-center items-center p-0 relative h-[48px] mt-[8px]">
 						<div className="flex text-[17px]">
-							创建成功
+							{t("Create.success")}
 						</div>
 						<button className="absolute right-[16px] top-1/2 transform -translate-y-1/2 hover:opacity-70 transition-opacity cursor-pointer" onClick={onSuccessOpenChange}>
 							<CloseIcon />
@@ -121,10 +122,10 @@ export default function CreatePage() {
 							isDisabled={!createdToken?.address}
 							onPress={handleViewDetail}
 						>
-							查看详情
+							{t("Create.viewDetails")}
 						</Button>
 						<Button fullWidth className="mt-[12px] h-[44px] bg-[#FD7438] rounded-[8px] text-[15px] text-[#fff]" onPress={handleShare}>
-							分享到 X
+							{t("Create.shareToX")}
 						</Button>
 					</ModalBody>
 				</ModalContent>

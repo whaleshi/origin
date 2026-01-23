@@ -3,5 +3,222 @@
         "zh": "Chinese",
         "en": "English",
         "label": "Language"
+    },
+    "Common": {
+        "copySuccess": "Copied",
+        "copyFailed": "Copy failed",
+        "unrefined": "Unrefined",
+        "refined": "Refined",
+        "optional": "(Optional)",
+        "noData": "No data"
+    },
+    "Actions": {
+        "buy": "Buy",
+        "sell": "Sell",
+        "mining": "Mine",
+        "swap": "Swap",
+        "submit": "Submit",
+        "confirm": "Confirm",
+        "connectWallet": "Connect Wallet",
+        "createToken": "Create Token",
+        "viewDetails": "View Details",
+        "share": "Share",
+        "shareToX": "Share to X",
+        "receive": "Receive",
+        "deposit": "Deposit",
+        "addSocialLinks": "Add social links",
+        "collapseSocialLinks": "Collapse social links",
+        "selectToken": "Select token",
+        "enterAmount": "Enter amount"
+    },
+    "Share": {
+        "tokenShareText": "Check out {{name}} ({{symbol}})"
+    },
+    "Toast": {
+        "actionSubmitted": "{{action}} submitted",
+        "actionSuccess": "{{action}} successful",
+        "actionFailed": "{{action}} failed",
+        "balanceInsufficient": "Insufficient balance",
+        "uploadFailed": "Upload failed",
+        "createInProgress": "Creating",
+        "confirmInWallet": "Confirm in wallet",
+        "createFailed": "Creation failed",
+        "claimSubmitted": "Claim submitted",
+        "claimSuccess": "Claim successful",
+        "claimFailed": "Claim failed",
+        "successDefault": "Operation successful",
+        "errorDefault": "Operation failed, please try again",
+        "loadingDefault": "Please wait...",
+        "deploymentSuccessTitle": "Deployment successful",
+        "deploymentSuccessDesc": "Deployed {{count}} tiles, {{amount}} BNB each"
+    },
+    "Navbar": {
+        "home": "Home",
+        "mechanism": "Mechanism",
+        "createToken": "Create",
+        "assets": "Assets",
+        "connectWallet": "Connect Wallet",
+        "language": "Language",
+        "joinCommunity": "Join community",
+        "searchPlaceholder": "Search token or address",
+        "noData": "No data"
+    },
+    "Home": {
+        "heroTitlePrefix": "Bring MEME creation back to",
+    "heroTitleHighlight": "起源",
+        "mechanismLink": "Mechanism →",
+        "tabNewCreated": "New",
+        "tabLaunched": "Launched",
+        "tabPool": "Pools",
+        "search": "Search"
+    },
+    "Search": {
+        "placeholder": "Enter",
+        "cancel": "Cancel",
+        "noData": "No data"
+    },
+    "Create": {
+        "title": "Create Token",
+        "success": "Created",
+        "viewDetails": "View Details",
+        "shareToX": "Share to X",
+        "avatar": "Avatar",
+        "name": "Name",
+        "ticker": "Ticker",
+        "description": "Description",
+        "preBuy": "Pre-buy",
+        "website": "Website",
+        "x": "X",
+        "telegram": "Telegram",
+        "namePlaceholder": "Enter token name",
+        "tickerPlaceholder": "Enter token symbol",
+        "descriptionPlaceholder": "Enter token description",
+        "avatarRequired": "Please upload an avatar",
+        "nameRequired": "Enter token name",
+        "tickerRequired": "Enter token symbol",
+        "amountInvalid": "Enter a valid amount",
+        "websiteInvalid": "Enter a valid website",
+        "xInvalid": "Enter a valid X link or handle",
+        "telegramInvalid": "Enter a valid Telegram link or handle",
+        "shareText": "I just created {{name}} ({{symbol}})",
+        "submit": "Submit"
+    },
+    "Market": {
+        "marketCap": "Market Cap",
+        "bondingProgress": "Bonding Curve Progress",
+        "goMining": "Go Mining",
+        "tokenDetails": "Token Details",
+        "tokenSupply": "Total Supply",
+        "bondingCurveTotal": "Bonding Curve Total",
+        "pancakeLiquidity": "Pancake Liquidity",
+        "miningReserve": "Mining Reserve",
+        "miningStatus": "Mining Status",
+        "activated": "Activated",
+        "pending": "Pending",
+        "contractAddress": "Contract Address",
+        "creator": "Creator",
+        "buy": "Buy",
+        "sell": "Sell"
+    },
+    "Swap": {
+        "title": "SWAP",
+        "miningRewards": "Mining Rewards",
+        "walletBalance": "Wallet Balance",
+        "slippage": "Slippage",
+        "marketCap": "Market Cap",
+        "price": "Price",
+        "change24h": "24H Change",
+        "liquidity": "Liquidity",
+        "contractAddress": "Contract Address",
+    "originSymbol": "起源",
+        "selectTokenPrompt": "Select a token",
+        "enterAmountPrompt": "Enter an amount",
+        "insufficientBalance": "Insufficient balance",
+        "swap": "Swap"
+    },
+    "Mining": {
+        "pendingActivation": "Mining pending",
+        "dataTitle": "Mining Data",
+        "tabMining": "Mining",
+        "tabMarket": "Market",
+        "poolSelect": "Select pool",
+        "poolSearchPlaceholder": "Search or select a pool",
+        "hotPools": "Hot pools"
+    },
+    "MiningAbout": {
+        "motherPoolAndRound": "Mother pool / This round",
+        "myAndGlobalVolumeTrade": "My volume / Global volume",
+        "myAndGlobalVolumeNetBuy": "My net buy / Global net buy",
+        "myRatio": "My ratio",
+        "estimatedRewards": "Estimated rewards",
+    "activateDesc": "Mining rewards activate when global {{metric}} exceeds {{volume}} 起源."
+    },
+    "MiningRewards": {
+        "title": "Mining Rewards",
+        "claim": "Claim",
+        "claimConfirmDesc": "Are you sure you want to claim all mining rewards, including refined and unrefined {{tokenSymbol}}? After claiming, your unrefined {{tokenSymbol}} will be converted to refined {{tokenSymbol}}.",
+        "unrefinedDesc": "Claimable {{tokenSymbol}} you mined. Claiming incurs a 10% refining fee paid to miners who held mined {{tokenSymbol}} longer.",
+        "refinedDesc": "Claimable {{tokenSymbol}} earned from refining fees."
+    },
+    "MiningList": {
+    "globalInactiveDesc": "This round did not meet the minimum {{metric}} requirement ({{amount}} 起源)."
+    },
+    "Trade": {
+        "walletBalance": "Wallet Balance",
+        "slippage": "Slippage",
+        "estimatedReceive": "Estimated Receive",
+        "buyNow": "Buy Now",
+        "sellNow": "Sell Now"
+    },
+    "Wallet": {
+        "balance": "Wallet Balance",
+        "receive": "Receive",
+        "deposit": "Deposit",
+        "assets": "Assets",
+        "receiveTitle": "Receive 0.5 BNB",
+        "receiveSubtitle": "Scan this code or copy your wallet address to receive funds on Bsc."
+    },
+    "Me": {
+        "title": "Me",
+        "tabHoldings": "Holdings",
+        "tabMining": "Mining",
+        "tabCreated": "Created"
+    },
+    "ListDialog": {
+        "selectPool": "Select pool",
+        "searchPlaceholder": "Search or select a pool",
+        "hotPools": "Hot pools",
+        "noData": "No data"
+    },
+    "Footer": {
+    "origin": "起源",
+        "swap": "Swap",
+        "me": "Me"
+    },
+    "Game": {
+        "miningRecords": "Mining records",
+        "my": "My",
+        "global": "Global",
+        "round": "Round",
+        "player": "Players",
+        "buy": "Buy",
+        "sell": "Sell",
+        "netBuys": "Volume",
+        "netBuy": "Net buy",
+        "reward": "Reward",
+        "time": "Time",
+        "tradeRecords": "Trade records",
+        "type": "Type",
+        "amount": "Amount",
+        "noRecordsFound": "No records found",
+        "claimRewards": "Claim rewards",
+        "confirm": "Confirm",
+        "slippageSettings": "Slippage settings",
+        "slippageDescription": "Higher slippage improves fill chances but increases price impact risk.",
+        "custom": "Custom",
+        "complete": "Done"
+    },
+    "Explore": {
+        "noRecordsFound": "No records found"
     }
 }

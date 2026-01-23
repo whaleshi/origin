@@ -48,7 +48,7 @@ export const SwapList = ({ coinInfo }: SwapListProps) => {
 					{/* Table Header */}
 					<div className="flex border-b border-dashed border-[#25262A] h-[38px] items-center text-[12px] text-[#868789] px-[12px]">
 						<div className="w-[60px] md:flex-[0.6] shrink-0 text-left">{t('Game.type')}</div>
-						<div className="w-[100px] md:flex-[1] shrink-0 text-right">起源</div>
+						<div className="w-[100px] md:flex-[1] shrink-0 text-right">{t("Swap.originSymbol")}</div>
 						<div className="w-[100px] flex-[1] shrink-0 text-right">{t('Game.amount')}</div>
 						<div className="w-[120px] flex-[1.2] shrink-0 text-right">{t('Game.time')}</div>
 					</div>
@@ -58,7 +58,7 @@ export const SwapList = ({ coinInfo }: SwapListProps) => {
 						{showLoading ? (
 							<div className="flex h-[380px] items-center justify-center text-[14px] text-[#868789]">
 								<div className="flex flex-col items-center gap-[12px]">
-									<img src="/images/logo.png" alt="Loading" className="w-[40px] h-[40px]" />
+									<img src="/images/loading.gif" alt="Loading" className="w-[40px] h-[40px]" />
 								</div>
 							</div>
 						) : hasRecords ? (

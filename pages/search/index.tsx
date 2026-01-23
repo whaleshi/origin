@@ -6,8 +6,10 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCoinList } from "@/service/api";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { useTranslation } from "react-i18next";
 
 export default function SearchPage() {
+	const { t } = useTranslation();
 	const [inputValue, setInputValue] = useState("");
 	const searchKeyword = inputValue.trim();
 	const debouncedKeyword = useDebouncedValue(searchKeyword, 300);
@@ -36,14 +38,14 @@ export default function SearchPage() {
 						input: "text-[14px] text-white placeholder:text-[#4A4B4E]",
 					}}
 					name="name"
-					placeholder="请输入"
+					placeholder={t("Search.placeholder")}
 					variant="bordered"
 					value={inputValue}
 					onChange={(e) => setInputValue(e.target.value)}
 					endContent={<div className="">{inputValue && <CloseIcon className="w-[16px] h-[16px]" onClick={() => setInputValue("")} />}</div>}
 					startContent={<SearchInputIcon />}
 				/>
-				<div className="text-[14px] whitespace-nowrap" onClick={() => router.push("/")}>取消</div>
+				<div className="text-[14px] whitespace-nowrap" onClick={() => router.push("/")}>{t("Search.cancel")}</div>
 			</div>
 			{inputValue ? (
 				<div className='h-[calc(100vh-56px-56px)] overflow-y-auto py-[16px] px-[14px]'>
@@ -65,14 +67,14 @@ export default function SearchPage() {
 					) : (
 						<div className="flex items-center justify-center flex-col pt-[200px]">
 							<img src="/images/nothing.png" className="w-[80px] h-[80px]" />
-							<div className="text-[#868789] text-[14px]">暂无数据</div>
+							<div className="text-[#868789] text-[14px]">{t("Search.noData")}</div>
 						</div>
 					)}
 				</div>
 			) : (
 				<div className="flex items-center justify-center flex-col pt-[200px]">
 					<img src="/images/nothing.png" className="w-[80px] h-[80px]" />
-					<div className="text-[#868789] text-[14px]">暂无数据</div>
+					<div className="text-[#868789] text-[14px]">{t("Search.noData")}</div>
 				</div>
 			)}
 		</div>

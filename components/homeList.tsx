@@ -5,14 +5,16 @@ import router from 'next/router';
 import { getCoinList } from '@/service/api';
 import { useQueries } from '@tanstack/react-query';
 import { useUserStore } from '@/stores/user';
+import { useTranslation } from "react-i18next";
 
 
 export default function HomeList() {
+	const { t } = useTranslation();
 	const tabs = useMemo(() => ([
-		{ label: '新创建', sortType: 1, itemType: 1 },
-		{ label: '已发射', sortType: 3, itemType: 2 },
-		{ label: '矿池', sortType: 4, itemType: 3 },
-	]), []);
+		{ label: t("Home.tabNewCreated"), sortType: 1, itemType: 1 },
+		{ label: t("Home.tabLaunched"), sortType: 3, itemType: 2 },
+		{ label: t("Home.tabPool"), sortType: 4, itemType: 3 },
+	]), [t]);
 	const { homeListActive, setHomeListActive } = useUserStore();
 	const safeActiveIndex = Math.min(Math.max(homeListActive, 0), tabs.length - 1);
 
@@ -62,7 +64,7 @@ export default function HomeList() {
 						</div>
 					))}
 				</div>
-				<div className='h-[28px] bg-[#191B1F] rounded-full text-[13px] text-[#5A575E] flex items-center gap-[4px] px-[12px]' onClick={() => { router.push("/search"); }}><SearchIcon />搜索</div>
+				<div className='h-[28px] bg-[#191B1F] rounded-full text-[13px] text-[#5A575E] flex items-center gap-[4px] px-[12px]' onClick={() => { router.push("/search"); }}><SearchIcon />{t("Home.search")}</div>
 			</div>
 			<div className='w-full px-[14px]'>
 				{
@@ -84,7 +86,7 @@ export default function HomeList() {
 					) : (
 						<div className='h-[calc(100vh-56px-200px-52px-52px-20px)] mt-[8px] bg-[rgba(13,15,19,0.35)] border-[1px] border-[#25262A] rounded-[8px] flex flex-col items-center justify-center'>
 							<img src="/images/nothing.png" className="w-[80px] h-[80px]" />
-							<div className="text-[#868789] text-[14px]">暂无数据</div>
+							<div className="text-[#868789] text-[14px]">{t("Common.noData")}</div>
 						</div>
 					)
 				}
@@ -116,7 +118,7 @@ export default function HomeList() {
 								) : (
 									<div className='h-full bg-[rgba(13,15,19,0.35)] border-[1px] border-[#25262A] rounded-[8px] flex flex-col items-center justify-center'>
 										<img src="/images/nothing.png" className="w-[80px] h-[80px]" />
-										<div className="text-[#868789] text-[14px]">暂无数据</div>
+										<div className="text-[#868789] text-[14px]">{t("Common.noData")}</div>
 									</div>
 								)
 							}

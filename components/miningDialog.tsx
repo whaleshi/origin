@@ -4,6 +4,7 @@ import MyAvatar from "@/components/avatar";
 import MiningAbout from "./miningAbout";
 import MiningRewards from "./miningRewards";
 import { MiningList } from "./miningList";
+import { useTranslation } from "react-i18next";
 type MiningDialogProps = {
 	isOpen: boolean;
 	onOpenChange: (open: boolean) => void;
@@ -11,6 +12,7 @@ type MiningDialogProps = {
 };
 
 export default function MiningDialog({ isOpen, onOpenChange, coinInfo }: MiningDialogProps) {
+	const { t } = useTranslation();
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -34,7 +36,7 @@ export default function MiningDialog({ isOpen, onOpenChange, coinInfo }: MiningD
 				</div>
 				<ModalHeader className="flex justify-center items-center p-0 relative h-[48px] mt-[8px]">
 					<div className="flex text-[17px]">
-						挖矿数据
+						{t("Mining.dataTitle")}
 					</div>
 					<button className="absolute right-[16px] top-1/2 transform -translate-y-1/2 hover:opacity-70 transition-opacity cursor-pointer" onClick={() => onOpenChange(false)}>
 						<CloseIcon />

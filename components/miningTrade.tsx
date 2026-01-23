@@ -11,12 +11,14 @@ import { useSlippageStore } from "@/stores/slippage";
 import { useSwapTrade } from "@/hooks/useSwapTrade";
 import { showErrorToast, showLoadingToast, showSuccessToast } from "@/utils/toastHelpers";
 import usePrivyLogin from "@/hooks/usePrivyLogin";
+import { useTranslation } from "react-i18next";
 
 type MiningTradeProps = {
 	coinInfo?: any;
 };
 
 export default function MiningTrade({ coinInfo }: MiningTradeProps) {
+	const { t } = useTranslation();
 	const [side, setSide] = useState<"buy" | "sell">("buy");
 	const [amount, setAmount] = useState("");
 	const [amountValue, setAmountValue] = useState("");
@@ -73,26 +75,26 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 		originAddress,
 		swapRouterAddress,
 		onSwapSubmitted: ({ hash, side: tradeSide }) => {
-			const actionText = tradeSide === "buy" ? "买入" : "卖出";
-			showLoadingToast(`${actionText}已发起`, `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
+			const actionText = tradeSide === "buy" ? t("Actions.buy") : t("Actions.sell");
+			showLoadingToast(t("Toast.actionSubmitted", { action: actionText }), `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
 		},
 		onSwapSuccess: ({ hash, side: tradeSide }) => {
-			const actionText = tradeSide === "buy" ? "买入" : "卖出";
-			showSuccessToast(`${actionText}成功`, `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
+			const actionText = tradeSide === "buy" ? t("Actions.buy") : t("Actions.sell");
+			showSuccessToast(t("Toast.actionSuccess", { action: actionText }), `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
 			handleSwapSuccess();
 			setAmount("");
 			setAmountValue("");
 		},
 		onSwapError: () => {
-			const actionText = side === "buy" ? "买入" : "卖出";
-			showErrorToast(`${actionText}失败`);
+			const actionText = side === "buy" ? t("Actions.buy") : t("Actions.sell");
+			showErrorToast(t("Toast.actionFailed", { action: actionText }));
 		},
 	});
 	const isInsufficient = amountWei > 0n && amountWei > balanceValue;
 	const isActionDisabled = address
 		? !amount || amountWei <= 0n || minAmountOut <= 0n || isApproving || isSwapping || isInsufficient
 		: false;
-	const actionLabel = address ? (side === "buy" ? "挖矿" : "卖出") : "Connect Wallet";
+	const actionLabel = address ? (side === "buy" ? t("Actions.mining") : t("Actions.sell")) : t("Actions.connectWallet");
 
 	return <div className="rounded-[8px] p-[12px] bg-[#191B1F] border-[1px] border-[#25262A]">
 		<div className="flex h-[36px] bg-[#25262A] rounded-[8px]">
@@ -108,7 +110,7 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 					: "text-[#868789] border-[#25262A] hover:text-[#fff] hover:bg-[#1E2025]"
 					}`}
 			>
-				挖矿
+				{t("Actions.mining")}
 			</button>
 			<button
 				type="button"
@@ -122,7 +124,7 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 					: "text-[#868789] border-[#25262A] hover:text-[#fff] hover:bg-[#1E2025]"
 					}`}
 			>
-				卖出
+				{t("Actions.sell")}
 			</button>
 		</div>
 		<div>
@@ -153,16 +155,16 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 			/>
 		</div>
 		<div className="h-[48px] flex items-center justify-between">
-			<div className="text-[13px] text-[#868789] flex items-center min-w-0 whitespace-nowrap">钱包余额
+			<div className="text-[13px] text-[#868789] flex items-center min-w-0 whitespace-nowrap">{t("Trade.walletBalance")}
 				<span className="text-[#fff] mx-[4px] truncate max-w-[120px] min-w-0">{balanceText} {balanceSymbol}</span>
 			</div>
 			<div className="flex items-center gap-[4px] text-[12px] text-[#868789]">
-				滑点<span className="text-[#fff]">{slippage}%</span>
+				{t("Trade.slippage")}<span className="text-[#fff]">{slippage}%</span>
 				<SettingIcon className="cursor-pointer" onClick={() => setIsSlippageOpen(true)} />
 			</div>
 		</div>
 		<div className="h-[48px] border-[1px] border-dashed border-[#303135] rounded-[8px] flex items-center justify-between px-[12px]">
-			<div className="text-[13px] text-[#868789]">预计获得</div>
+			<div className="text-[13px] text-[#868789]">{t("Trade.estimatedReceive")}</div>
 			<div className="flex items-center gap-[4px]">
 				{side === 'sell' ? <MyAvatar src="/images/origin.png" alt="icon" className="w-[16px] h-[16px] bg-[transparent]" /> : <MyAvatar src={tokenAvatar} alt="icon" className="w-[16px] h-[16px] bg-[transparent]" />}
 				<span className="text-[13px] text-[#fff]">{estimatedAmount}</span>
@@ -181,7 +183,7 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 							return;
 						}
 						if (isInsufficient) {
-							showErrorToast("余额不足");
+							showErrorToast(t("Toast.balanceInsufficient"));
 							return;
 						}
 						handleBuy();
@@ -201,7 +203,7 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 							return;
 						}
 						if (isInsufficient) {
-							showErrorToast("余额不足");
+							showErrorToast(t("Toast.balanceInsufficient"));
 							return;
 						}
 						handleSell();
