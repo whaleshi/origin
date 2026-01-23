@@ -9,12 +9,17 @@ import ScrollingName from "./scrollingName";
 import { formatBigNumber } from "@/utils/formatBigNumber";
 import { formatPercent, getPercentClass } from "@/utils/number";
 import { SwapList } from "./swapList";
+import ListDialog from "./listDialog";
+import { useRouter } from "next/router";
+import { useState } from "react";
 
 type MiningProps = {
 	coinInfo?: any;
 };
 
 export default function Mining({ coinInfo }: MiningProps) {
+	const router = useRouter();
+	const [isListDialogOpen, setIsListDialogOpen] = useState(false);
 	const changeValue = coinInfo?.price_change_24h_f ?? coinInfo?.price_change_24h ?? coinInfo?.change_24h;
 	const displayChange = formatPercent(changeValue, "0.00%");
 	const changeClass = getPercentClass(changeValue);
@@ -38,14 +43,22 @@ export default function Mining({ coinInfo }: MiningProps) {
 				<div className="text-[13px] text-[#4A4B4E]">
 					24H<span className={`ml-[2px] ${changeClass}`}>{displayChange}</span>
 				</div>
-				{/* text-[#FF5160] */}
 			</div>
-			<BottomTokenIcon className="cursor-pointer ml-[12px]" />
+			<BottomTokenIcon className="cursor-pointer ml-[12px]" onClick={() => setIsListDialogOpen(true)} />
 		</div>
 		<div className="my-[12px]"><MiningAbout coinInfo={coinInfo} /></div>
 		<div><MiningTrade coinInfo={coinInfo} /></div>
 		<div className="mt-[24px]"><MiningRewards coinInfo={coinInfo} /></div>
 		<div><MiningList coinInfo={coinInfo} /></div>
 		<div className="mt-[20px]"><SwapList coinInfo={coinInfo} /></div>
+		<ListDialog
+			isOpen={isListDialogOpen}
+			onOpenChange={setIsListDialogOpen}
+			onSelect={(item) => {
+				if (item?.mint) {
+					router.replace(`/token/${item.mint}`, undefined, { shallow: true, scroll: false });
+				}
+			}}
+		/>
 	</div>;
 }

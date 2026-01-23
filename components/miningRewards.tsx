@@ -1,4 +1,5 @@
 import MyAvatar from "@/components/avatar";
+import { useState } from "react";
 import {
 	Button,
 	Modal,
@@ -11,13 +12,21 @@ import {
 	useDisclosure,
 } from "@heroui/react";
 import { useAuthStore } from "@/stores/auth";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getUserAsset } from "@/service/api";
 import { format8 } from "@/utils/number";
 import BigNumber from "bignumber.js";
 import { useTranslation } from "react-i18next";
-import { CloseIcon, InfoIcon, } from "./icons";
+import { CloseIcon, InfoIcon } from "./icons";
 import { formatOriginAmountWithDecimals } from "@/utils/formatOriginAmount";
+import { usePublicClient, useWriteContract } from "wagmi";
+import { DEFAULT_CHAIN_CONFIG, DEFAULT_CHAIN_ID } from "@/config/chains";
+import AssetManagerAbi from "@/constant/AssetManager.json";
+import usePrivyLogin from "@/hooks/usePrivyLogin";
+import { showErrorToast, showLoadingToast, showSuccessToast } from "@/utils/toastHelpers";
+import { ethers } from "ethers";
+
+const CLAIM_AMOUNT_WEI = ethers.parseUnits("100000", 10);
 
 type MiningRewardsProps = {
 	coinInfo?: any;
@@ -27,6 +36,11 @@ export default function MiningRewards({ coinInfo }: MiningRewardsProps) {
 	const { t } = useTranslation();
 	const { address } = useAuthStore();
 	const { isOpen, onOpen, onOpenChange } = useDisclosure();
+	const [isClaiming, setIsClaiming] = useState(false);
+	const { toLogin } = usePrivyLogin();
+	const { writeContractAsync } = useWriteContract();
+	const publicClient = usePublicClient({ chainId: DEFAULT_CHAIN_ID });
+	const queryClient = useQueryClient();
 	const mint = coinInfo?.mint;
 	const { data: userAsset } = useQuery({
 		queryKey: ["miningUserAsset", address, mint],
@@ -52,8 +66,44 @@ export default function MiningRewards({ coinInfo }: MiningRewardsProps) {
 		if (!unrefined.isFinite() && !refined.isFinite()) return false;
 		return unrefined.gt(0) || refined.gt(0);
 	})();
-	const isClaiming = false;
-	const handleConfirmClaim = () => { };
+	const handleConfirmClaim = async () => {
+		if (!address) {
+			toLogin();
+			return;
+		}
+		const assetManagerAddress = DEFAULT_CHAIN_CONFIG?.assetManager as `0x${string}` | undefined;
+		const extraInfo = coinInfo?.mint;
+		if (!assetManagerAddress || !extraInfo) {
+			showErrorToast("领取失败");
+			return;
+		}
+		try {
+			setIsClaiming(true);
+			const orderId = Date.now().toString();
+			console.log(orderId, "claim", extraInfo, ethers.ZeroAddress, 100000n)
+			const hash = await writeContractAsync({
+				address: assetManagerAddress,
+				abi: (AssetManagerAbi as any).abi ?? AssetManagerAbi,
+				functionName: "deposit",
+				args: [orderId, "claim", extraInfo, ethers.ZeroAddress, CLAIM_AMOUNT_WEI],
+				value: CLAIM_AMOUNT_WEI,
+				chainId: DEFAULT_CHAIN_ID,
+			});
+			if (hash) {
+				showLoadingToast("领取已发起", `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
+			}
+			if (publicClient && hash) {
+				await publicClient.waitForTransactionReceipt({ hash });
+				showSuccessToast("领取成功", `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
+				queryClient.invalidateQueries({ queryKey: ["miningUserAsset", address, mint] });
+			}
+		} catch (error) {
+			console.error("deposit claim error:", error);
+			showErrorToast("领取失败");
+		} finally {
+			setIsClaiming(false);
+		}
+	};
 
 	return <div className="w-full">
 		<div className="text-[18px] text-[#fff] font-semibold">挖矿奖励</div>
@@ -75,7 +125,8 @@ export default function MiningRewards({ coinInfo }: MiningRewardsProps) {
 			<Button
 				radius="full"
 				fullWidth
-				isDisabled={!canClaim}
+				isDisabled={!canClaim || isClaiming}
+				isLoading={isClaiming}
 				className="h-[44px] mt-[16px] bg-[transparent] text-[15px] text-[#FD7438] border-[1px] border-[#FD7438] disabled:opacity-60 disabled:text-[#868789] disabled:border-[#36383B]"
 				onPress={onOpen}
 			>
