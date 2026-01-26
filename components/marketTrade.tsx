@@ -32,6 +32,7 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 	const [amount, setAmount] = useState("");
 	const [amountValue, setAmountValue] = useState("");
 	const [isSlippageOpen, setIsSlippageOpen] = useState(false);
+	const [isBuying, setIsBuying] = useState(false);
 	const [isSelling, setIsSelling] = useState(false);
 	const { slippage, setSlippage } = useSlippageStore();
 	const tokenSymbol = coinInfo?.symbol ?? "--";
@@ -99,7 +100,7 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 	})();
 	const isInsufficient = amountWei > 0n && amountWei > walletBalanceValue;
 	const isActionDisabled = address
-		? !amount || amountWei <= 0n || (isBuy ? minAmountOut <= 0n : false) || isInsufficient
+		? !amount || amountWei <= 0n || (isBuy ? minAmountOut <= 0n : false) || isInsufficient || isBuying || isSelling
 		: false;
 	const actionLabel = address ? (isBuy ? t("Trade.buyNow") : t("Trade.sellNow")) : t("Actions.connectWallet");
 	const setSellAmountPercent = (percent: number) => {
@@ -134,6 +135,8 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 			return;
 		}
 		if (!tokenFactoryAddress || !coinInfo?.mint || amountWei <= 0n || !publicClient) return;
+		if (isBuying) return;
+		setIsBuying(true);
 		try {
 			const actionText = t("Actions.buy");
 			const quote = await publicClient.readContract({
@@ -177,6 +180,8 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 		} catch (error) {
 			console.error("buyToken error:", error);
 			showErrorToast(t("Toast.actionFailed", { action: t("Actions.buy") }));
+		} finally {
+			setIsBuying(false);
 		}
 	};
 	const handleSell = async () => {
@@ -189,6 +194,7 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 			return;
 		}
 		if (!tokenFactoryAddress || !coinInfo?.mint || amountWei <= 0n || !publicClient) return;
+		if (isSelling) return;
 		setIsSelling(true);
 		try {
 			const actionText = t("Actions.sell");
@@ -366,7 +372,7 @@ export default function MarketTrade({ coinInfo, side, onSideChange }: MarketTrad
 				<Button
 					fullWidth
 					className="h-[44px] rounded-[12px] bg-[#1ACD67] text-[15px] mt-[24px]"
-					isLoading={isTxPending}
+					isLoading={isTxPending || isBuying}
 					isDisabled={isActionDisabled}
 					onPress={handleBuy}
 				>

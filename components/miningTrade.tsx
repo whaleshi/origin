@@ -23,6 +23,7 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 	const [amount, setAmount] = useState("");
 	const [amountValue, setAmountValue] = useState("");
 	const [isSlippageOpen, setIsSlippageOpen] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { slippage, setSlippage } = useSlippageStore();
 	const tokenSymbol = coinInfo?.symbol ?? "--";
 	const tokenAvatar = coinInfo?.image_url || "/images/default.png";
@@ -84,15 +85,17 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 			handleSwapSuccess();
 			setAmount("");
 			setAmountValue("");
+			setIsSubmitting(false);
 		},
 		onSwapError: () => {
 			const actionText = side === "buy" ? t("Actions.buy") : t("Actions.sell");
 			showErrorToast(t("Toast.actionFailed", { action: actionText }));
+			setIsSubmitting(false);
 		},
 	});
 	const isInsufficient = amountWei > 0n && amountWei > balanceValue;
 	const isActionDisabled = address
-		? !amount || amountWei <= 0n || minAmountOut <= 0n || isApproving || isSwapping || isInsufficient
+		? !amount || amountWei <= 0n || minAmountOut <= 0n || isApproving || isSwapping || isInsufficient || isSubmitting
 		: false;
 	const actionLabel = address ? (side === "buy" ? t("Actions.mining") : t("Actions.sell")) : t("Actions.connectWallet");
 
@@ -175,7 +178,7 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 				<Button
 					fullWidth
 					className="h-[44px] rounded-[12px] bg-[#FD7438] text-[15px] mt-[24px]"
-					isLoading={isApproving || isSwapping}
+					isLoading={isSubmitting || isApproving || isSwapping}
 					isDisabled={isActionDisabled}
 					onPress={() => {
 						if (!address) {
@@ -186,6 +189,8 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 							showErrorToast(t("Toast.balanceInsufficient"));
 							return;
 						}
+						if (isSubmitting) return;
+						setIsSubmitting(true);
 						handleBuy();
 					}}
 				>
@@ -195,7 +200,7 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 				<Button
 					fullWidth
 					className="h-[44px] rounded-[12px] bg-[#FF5160] text-[15px] mt-[24px]"
-					isLoading={isApproving || isSwapping}
+					isLoading={isSubmitting || isApproving || isSwapping}
 					isDisabled={isActionDisabled}
 					onPress={() => {
 						if (!address) {
@@ -206,6 +211,8 @@ export default function MiningTrade({ coinInfo }: MiningTradeProps) {
 							showErrorToast(t("Toast.balanceInsufficient"));
 							return;
 						}
+						if (isSubmitting) return;
+						setIsSubmitting(true);
 						handleSell();
 					}}
 				>

@@ -5,7 +5,7 @@ import pinFileToIPFS from "@/utils/pinata";
 import TokenFactoryAbi from "@/constant/TokenFactory.json";
 import { CHAINS_CONFIG, DEFAULT_CHAIN_ID } from "@/config/chains";
 import { useChainId, usePublicClient, useWriteContract } from "wagmi";
-import { getLuckyToken } from "@/service/api";
+import { checkData, getLuckyToken } from "@/service/api";
 import { decodeEventLog } from "viem";
 import BigNumber from "bignumber.js";
 import { showErrorToast, showLoadingToast } from "@/utils/toastHelpers";
@@ -104,12 +104,51 @@ export default function CreateForm({ onCreateSuccess }: CreateFormProps) {
 		}
 	};
 
+	const checkCreateData = async () => {
+		if (!ipfsHash) {
+			showErrorToast(t("Toast.uploadFailed"));
+			return false;
+		}
+		const payload = {
+			image: ipfsHash,
+			name: `${nameVal}${tickerVal}${descriptionVal}`,
+			text: "",
+		};
+		try {
+			const res = await checkData(payload);
+			if (!res || (typeof res?.error_code === "number" && res.error_code !== 0) || !res?.data) {
+				showErrorToast(t("Toast.contentInvalid"));
+				return false;
+			}
+			const data = res.data ?? {};
+			const statusValues = [
+				data?.mint_status,
+				data?.text_status,
+				data?.image_status,
+				data?.name_status,
+			];
+			const hasInvalid = statusValues.some((value: number) => value === 2);
+			if (hasInvalid) {
+				showErrorToast(t("Toast.contentInvalid"));
+				return false;
+			}
+			return true;
+		} catch (error) {
+			showErrorToast(t("Toast.contentInvalid"));
+			return false;
+		}
+	};
+
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setSubmitted(true);
 		if (!isValid) return;
 		setCreateLoading(true);
 		try {
+			const checkOk = await checkCreateData();
+			if (!checkOk) {
+				return;
+			}
 			showLoadingToast(t("Toast.createInProgress"), t("Toast.confirmInWallet"));
 			const uploadResult = await uploadFile();
 			if (!uploadResult) {

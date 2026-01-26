@@ -1,224 +1,225 @@
 {
-  "LocaleSwitcher": {
-    "zh": "中文",
-    "en": "英文",
-    "label": "语言"
-  },
-  "Common": {
-    "copySuccess": "复制成功",
-    "copyFailed": "复制失败",
-    "unrefined": "未精炼",
-    "refined": "精炼",
-    "optional": "（可选）",
-    "noData": "暂无数据"
-  },
-  "Actions": {
-    "buy": "买入",
-    "sell": "卖出",
-    "mining": "挖矿",
-    "swap": "Swap",
-    "submit": "提交",
-    "confirm": "确认",
-    "connectWallet": "Connect Wallet",
-    "createToken": "创建代币",
-    "viewDetails": "查看详情",
-    "share": "分享",
-    "shareToX": "分享到 X",
-    "receive": "接收",
-    "deposit": "充值",
-    "addSocialLinks": "添加社交链接",
-    "collapseSocialLinks": "收起社交链接",
-    "selectToken": "选择代币",
-    "enterAmount": "输入金额"
-  },
-  "Share": {
-    "tokenShareText": "看看 {{name}} ({{symbol}})"
-  },
-  "Toast": {
-    "actionSubmitted": "{{action}}已发起",
-    "actionSuccess": "{{action}}成功",
-    "actionFailed": "{{action}}失败",
-    "balanceInsufficient": "余额不足",
-    "uploadFailed": "上传失败",
-    "createInProgress": "创建中",
-    "confirmInWallet": "请在钱包内确认交易",
-    "createFailed": "创建失败",
-    "claimSubmitted": "领取已发起",
-    "claimSuccess": "领取成功",
-    "claimFailed": "领取失败",
-    "successDefault": "操作成功完成",
-    "errorDefault": "操作失败，请重试",
-    "loadingDefault": "请稍候...",
-    "deploymentSuccessTitle": "部署成功",
-    "deploymentSuccessDesc": "成功部署 {{count}} 个格子，每格 {{amount}} BNB"
-  },
-  "Navbar": {
-    "home": "首页",
-    "mechanism": "运行机制",
-    "createToken": "创建代币",
-    "assets": "资产",
-    "connectWallet": "连接钱包",
-    "language": "语言",
-    "joinCommunity": "加入社区",
-    "searchPlaceholder": "搜索代币、地址",
-    "noData": "暂无数据"
-  },
-  "Home": {
-    "heroTitlePrefix": "让 MEME 的诞生回归",
-    "heroTitleHighlight": "起源",
-    "mechanismLink": "运行机制→",
-    "tabNewCreated": "新创建",
-    "tabLaunched": "已发射",
-    "tabPool": "矿池",
-    "search": "搜索"
-  },
-  "Search": {
-    "placeholder": "请输入",
-    "cancel": "取消",
-    "noData": "暂无数据"
-  },
-  "Create": {
-    "title": "创建代币",
-    "success": "创建成功",
-    "viewDetails": "查看详情",
-    "shareToX": "分享到 X",
-    "avatar": "头像",
-    "name": "名称",
-    "ticker": "Ticker",
-    "description": "描述",
-    "preBuy": "提前买入",
-    "website": "网站",
-    "x": "X",
-    "telegram": "Telegram",
-    "namePlaceholder": "请输入代币名称",
-    "tickerPlaceholder": "输入代币符号",
-    "descriptionPlaceholder": "输入代币描述",
-    "avatarRequired": "请上传头像",
-    "nameRequired": "请输入代币名称",
-    "tickerRequired": "输入代币符号",
-    "amountInvalid": "请输入正确的数量",
-    "websiteInvalid": "请输入有效的网站链接",
-    "xInvalid": "请输入有效的 X 链接或用户名",
-    "telegramInvalid": "请输入有效的 Telegram 链接或用户名",
-    "shareText": "我刚创建了 {{name}} ({{symbol}})",
-    "submit": "提交"
-  },
-  "Market": {
-    "marketCap": "市值",
-    "bondingProgress": "Bonding Curve 进度",
-    "goMining": "去挖矿",
-    "tokenDetails": "代币详情",
-    "tokenSupply": "代币总量",
-    "bondingCurveTotal": "联合曲线总量",
-    "pancakeLiquidity": "Pancake 流动性",
-    "miningReserve": "代币挖矿预留",
-    "miningStatus": "挖矿状态",
-    "activated": "已激活",
-    "pending": "待激活",
-    "contractAddress": "合约地址",
-    "creator": "创建者",
-    "buy": "买入",
-    "sell": "卖出"
-  },
-  "Swap": {
-    "title": "SWAP",
-    "miningRewards": "挖矿奖励",
-    "walletBalance": "钱包余额",
-    "slippage": "滑点",
-    "marketCap": "市值",
-    "price": "价格",
-    "change24h": "24H 涨跌",
-    "liquidity": "流动性",
-    "contractAddress": "合约地址",
-    "originSymbol": "起源",
-    "selectTokenPrompt": "请选择代币",
-    "enterAmountPrompt": "请输入金额",
-    "insufficientBalance": "余额不足",
-    "swap": "Swap"
-  },
-  "Mining": {
-    "pendingActivation": "挖矿待激活",
-    "dataTitle": "挖矿数据",
-    "tabMining": "挖矿",
-    "tabMarket": "市场",
-    "poolSelect": "选择矿池",
-    "poolSearchPlaceholder": "搜索或选择你想要挖矿的矿池",
-    "hotPools": "热门矿池"
-  },
-  "MiningAbout": {
-    "motherPoolAndRound": "母矿奖池 / 本轮发放",
-    "myAndGlobalVolumeTrade": "我的交易量 / 全局交易量",
-    "myAndGlobalVolumeNetBuy": "我的净买入 / 全局净买入",
-    "myRatio": "我的占比",
-    "estimatedRewards": "预计获得",
-    "activateDesc": "全局{{metric}}超过 {{volume}} 起源，将激活挖矿奖励"
-  },
-  "MiningRewards": {
-    "title": "挖矿奖励",
-    "claim": "领取",
-    "claimConfirmDesc": "您确定要领取所有挖矿奖励，包括精炼和未精炼的 {{tokenSymbol}} 吗？领取后你的未精炼 {{tokenSymbol}} 将转化为精炼 {{tokenSymbol}}。",
-    "unrefinedDesc": "您挖掘的可领取的 {{tokenSymbol}}。领取时将收取 10% 的精炼费，支付给持有已挖掘 {{tokenSymbol}} 更长时间的其他矿工。",
-    "refinedDesc": "您从精炼费中赚取的可领取的 {{tokenSymbol}}。"
-  },
-  "MiningList": {
-    "globalInactiveDesc": "本轮未符合最低{{metric}}要求({{amount}}起源)"
-  },
-  "Trade": {
-    "walletBalance": "钱包余额",
-    "slippage": "滑点",
-    "estimatedReceive": "预计获得",
-    "buyNow": "立即买入",
-    "sellNow": "立即卖出"
-  },
-  "Wallet": {
-    "balance": "钱包余额",
-    "receive": "接收",
-    "deposit": "充值",
-    "assets": "资产",
-    "receiveTitle": "接收 0.5 BNB",
-    "receiveSubtitle": "扫描二维码或复制地址接收 BNB"
-  },
-  "Me": {
-    "title": "我的",
-    "tabHoldings": "持仓代币",
-    "tabMining": "挖矿",
-    "tabCreated": "我创建的"
-  },
-  "ListDialog": {
-    "selectPool": "选择矿池",
-    "searchPlaceholder": "搜索或选择你想要挖矿的矿池",
-    "hotPools": "热门矿池",
-    "noData": "暂无数据"
-  },
-  "Footer": {
-    "origin": "起源",
-    "swap": "swap",
-    "me": "我的"
-  },
-  "Game": {
-    "miningRecords": "挖矿记录",
-    "my": "我的",
-    "global": "全局",
-    "round": "轮次",
-    "player": "玩家",
-    "buy": "买入",
-    "sell": "卖出",
-    "netBuys": "交易量",
-    "netBuy": "净买入",
-    "reward": "奖励",
-    "time": "时间",
-    "tradeRecords": "交易记录",
-    "type": "类型",
-    "amount": "数量",
-    "noRecordsFound": "未找到记录",
-    "claimRewards": "领取奖励",
-    "confirm": "确认领取",
-    "slippageSettings": "滑点设置",
-    "slippageDescription": "滑点越高越容易成交，但价格波动风险更大。",
-    "custom": "自定义",
-    "complete": "完成"
-  },
-  "Explore": {
-    "noRecordsFound": "未找到记录"
-  }
+    "LocaleSwitcher": {
+        "zh": "中文",
+        "en": "英文",
+        "label": "语言"
+    },
+    "Common": {
+        "copySuccess": "复制成功",
+        "copyFailed": "复制失败",
+        "unrefined": "未精炼",
+        "refined": "精炼",
+        "optional": "（可选）",
+        "noData": "暂无数据"
+    },
+    "Actions": {
+        "buy": "买入",
+        "sell": "卖出",
+        "mining": "挖矿",
+        "swap": "Swap",
+        "submit": "提交",
+        "confirm": "确认",
+        "connectWallet": "Connect Wallet",
+        "createToken": "创建代币",
+        "viewDetails": "查看详情",
+        "share": "分享",
+        "shareToX": "分享到 X",
+        "receive": "接收",
+        "deposit": "充值",
+        "addSocialLinks": "添加社交链接",
+        "collapseSocialLinks": "收起社交链接",
+        "selectToken": "选择代币",
+        "enterAmount": "输入金额"
+    },
+    "Share": {
+        "tokenShareText": "看看 {{name}} ({{symbol}})"
+    },
+    "Toast": {
+        "actionSubmitted": "{{action}}已发起",
+        "actionSuccess": "{{action}}成功",
+        "actionFailed": "{{action}}失败",
+        "balanceInsufficient": "余额不足",
+        "uploadFailed": "上传失败",
+        "createInProgress": "创建中",
+        "confirmInWallet": "请在钱包内确认交易",
+        "createFailed": "创建失败",
+        "claimSubmitted": "领取已发起",
+        "claimSuccess": "领取成功",
+        "claimFailed": "领取失败",
+        "successDefault": "操作成功完成",
+        "errorDefault": "操作失败，请重试",
+        "contentInvalid": "内容违规请重新填写",
+        "loadingDefault": "请稍候...",
+        "deploymentSuccessTitle": "部署成功",
+        "deploymentSuccessDesc": "成功部署 {{count}} 个格子，每格 {{amount}} BNB"
+    },
+    "Navbar": {
+        "home": "首页",
+        "mechanism": "运行机制",
+        "createToken": "创建代币",
+        "assets": "资产",
+        "connectWallet": "连接钱包",
+        "language": "语言",
+        "joinCommunity": "加入社区",
+        "searchPlaceholder": "搜索代币、地址",
+        "noData": "暂无数据"
+    },
+    "Home": {
+        "heroTitlePrefix": "让 MEME 的诞生回归",
+        "heroTitleHighlight": "起源",
+        "mechanismLink": "运行机制→",
+        "tabNewCreated": "新创建",
+        "tabLaunched": "已发射",
+        "tabPool": "矿池",
+        "search": "搜索"
+    },
+    "Search": {
+        "placeholder": "请输入",
+        "cancel": "取消",
+        "noData": "暂无数据"
+    },
+    "Create": {
+        "title": "创建代币",
+        "success": "创建成功",
+        "viewDetails": "查看详情",
+        "shareToX": "分享到 X",
+        "avatar": "头像",
+        "name": "名称",
+        "ticker": "Ticker",
+        "description": "描述",
+        "preBuy": "提前买入",
+        "website": "网站",
+        "x": "X",
+        "telegram": "Telegram",
+        "namePlaceholder": "请输入代币名称",
+        "tickerPlaceholder": "输入代币符号",
+        "descriptionPlaceholder": "输入代币描述",
+        "avatarRequired": "请上传头像",
+        "nameRequired": "请输入代币名称",
+        "tickerRequired": "输入代币符号",
+        "amountInvalid": "请输入正确的数量",
+        "websiteInvalid": "请输入有效的网站链接",
+        "xInvalid": "请输入有效的 X 链接或用户名",
+        "telegramInvalid": "请输入有效的 Telegram 链接或用户名",
+        "shareText": "我刚创建了 {{name}} ({{symbol}})",
+        "submit": "提交"
+    },
+    "Market": {
+        "marketCap": "市值",
+        "bondingProgress": "Bonding Curve 进度",
+        "goMining": "去挖矿",
+        "tokenDetails": "代币详情",
+        "tokenSupply": "代币总量",
+        "bondingCurveTotal": "联合曲线总量",
+        "pancakeLiquidity": "Pancake 流动性",
+        "miningReserve": "代币挖矿预留",
+        "miningStatus": "挖矿状态",
+        "activated": "已激活",
+        "pending": "待激活",
+        "contractAddress": "合约地址",
+        "creator": "创建者",
+        "buy": "买入",
+        "sell": "卖出"
+    },
+    "Swap": {
+        "title": "SWAP",
+        "miningRewards": "挖矿奖励",
+        "walletBalance": "钱包余额",
+        "slippage": "滑点",
+        "marketCap": "市值",
+        "price": "价格",
+        "change24h": "24H 涨跌",
+        "liquidity": "流动性",
+        "contractAddress": "合约地址",
+        "originSymbol": "起源",
+        "selectTokenPrompt": "请选择代币",
+        "enterAmountPrompt": "请输入金额",
+        "insufficientBalance": "余额不足",
+        "swap": "Swap"
+    },
+    "Mining": {
+        "pendingActivation": "挖矿待激活",
+        "dataTitle": "挖矿数据",
+        "tabMining": "挖矿",
+        "tabMarket": "市场",
+        "poolSelect": "选择矿池",
+        "poolSearchPlaceholder": "搜索或选择你想要挖矿的矿池",
+        "hotPools": "热门矿池"
+    },
+    "MiningAbout": {
+        "motherPoolAndRound": "母矿奖池 / 本轮发放",
+        "myAndGlobalVolumeTrade": "我的交易量 / 全局交易量",
+        "myAndGlobalVolumeNetBuy": "我的净买入 / 全局净买入",
+        "myRatio": "我的占比",
+        "estimatedRewards": "预计获得",
+        "activateDesc": "全局{{metric}}超过 {{volume}} 起源，将激活挖矿奖励"
+    },
+    "MiningRewards": {
+        "title": "挖矿奖励",
+        "claim": "领取",
+        "claimConfirmDesc": "您确定要领取所有挖矿奖励，包括精炼和未精炼的 {{tokenSymbol}} 吗？领取后你的未精炼 {{tokenSymbol}} 将转化为精炼 {{tokenSymbol}}。",
+        "unrefinedDesc": "您挖掘的可领取的 {{tokenSymbol}}。领取时将收取 10% 的精炼费，支付给持有已挖掘 {{tokenSymbol}} 更长时间的其他矿工。",
+        "refinedDesc": "您从精炼费中赚取的可领取的 {{tokenSymbol}}。"
+    },
+    "MiningList": {
+        "globalInactiveDesc": "本轮未符合最低{{metric}}要求({{amount}}起源)"
+    },
+    "Trade": {
+        "walletBalance": "钱包余额",
+        "slippage": "滑点",
+        "estimatedReceive": "预计获得",
+        "buyNow": "立即买入",
+        "sellNow": "立即卖出"
+    },
+    "Wallet": {
+        "balance": "钱包余额",
+        "receive": "接收",
+        "deposit": "充值",
+        "assets": "资产",
+        "receiveTitle": "接收 0.5 BNB",
+        "receiveSubtitle": "扫描二维码或复制地址接收 BNB"
+    },
+    "Me": {
+        "title": "我的",
+        "tabHoldings": "持仓代币",
+        "tabMining": "挖矿",
+        "tabCreated": "我创建的"
+    },
+    "ListDialog": {
+        "selectPool": "选择矿池",
+        "searchPlaceholder": "搜索或选择你想要挖矿的矿池",
+        "hotPools": "热门矿池",
+        "noData": "暂无数据"
+    },
+    "Footer": {
+        "origin": "起源",
+        "swap": "swap",
+        "me": "我的"
+    },
+    "Game": {
+        "miningRecords": "挖矿记录",
+        "my": "我的",
+        "global": "全局",
+        "round": "轮次",
+        "player": "玩家",
+        "buy": "买入",
+        "sell": "卖出",
+        "netBuys": "交易量",
+        "netBuy": "净买入",
+        "reward": "奖励",
+        "time": "时间",
+        "tradeRecords": "交易记录",
+        "type": "类型",
+        "amount": "数量",
+        "noRecordsFound": "未找到记录",
+        "claimRewards": "领取奖励",
+        "confirm": "确认领取",
+        "slippageSettings": "滑点设置",
+        "slippageDescription": "滑点越高越容易成交，但价格波动风险更大。",
+        "custom": "自定义",
+        "complete": "完成"
+    },
+    "Explore": {
+        "noRecordsFound": "未找到记录"
+    }
 }

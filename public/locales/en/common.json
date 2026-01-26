@@ -48,6 +48,7 @@
         "claimFailed": "Claim failed",
         "successDefault": "Operation successful",
         "errorDefault": "Operation failed, please try again",
+        "contentInvalid": "Content is invalid, please edit and try again",
         "loadingDefault": "Please wait...",
         "deploymentSuccessTitle": "Deployment successful",
         "deploymentSuccessDesc": "Deployed {{count}} tiles, {{amount}} BNB each"
@@ -65,7 +66,7 @@
     },
     "Home": {
         "heroTitlePrefix": "Bring MEME creation back to",
-    "heroTitleHighlight": "起源",
+        "heroTitleHighlight": "起源",
         "mechanismLink": "Mechanism →",
         "tabNewCreated": "New",
         "tabLaunched": "Launched",
@@ -130,7 +131,7 @@
         "change24h": "24H Change",
         "liquidity": "Liquidity",
         "contractAddress": "Contract Address",
-    "originSymbol": "起源",
+        "originSymbol": "起源",
         "selectTokenPrompt": "Select a token",
         "enterAmountPrompt": "Enter an amount",
         "insufficientBalance": "Insufficient balance",
@@ -151,7 +152,7 @@
         "myAndGlobalVolumeNetBuy": "My net buy / Global net buy",
         "myRatio": "My ratio",
         "estimatedRewards": "Estimated rewards",
-    "activateDesc": "Mining rewards activate when global {{metric}} exceeds {{volume}} 起源."
+        "activateDesc": "Mining rewards activate when global {{metric}} exceeds {{volume}} 起源."
     },
     "MiningRewards": {
         "title": "Mining Rewards",
@@ -161,7 +162,7 @@
         "refinedDesc": "Claimable {{tokenSymbol}} earned from refining fees."
     },
     "MiningList": {
-    "globalInactiveDesc": "This round did not meet the minimum {{metric}} requirement ({{amount}} 起源)."
+        "globalInactiveDesc": "This round did not meet the minimum {{metric}} requirement ({{amount}} 起源)."
     },
     "Trade": {
         "walletBalance": "Wallet Balance",
@@ -191,7 +192,7 @@
         "noData": "No data"
     },
     "Footer": {
-    "origin": "起源",
+        "origin": "起源",
         "swap": "Swap",
         "me": "Me"
     },

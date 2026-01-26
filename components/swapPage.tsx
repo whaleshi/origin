@@ -38,6 +38,7 @@ export default function SwapPage() {
 	const [topAmount, setTopAmount] = useState("");
 	const [bottomAmount, setBottomAmount] = useState("");
 	const [isReversed, setIsReversed] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [isMiningDialogOpen, setIsMiningDialogOpen] = useState(false);
 	const [isListDialogOpen, setIsListDialogOpen] = useState(false);
 	const [selectedCoin, setSelectedCoin] = useState<any | null>(null);
@@ -110,10 +111,12 @@ export default function SwapPage() {
 			showSuccessToast(t("Toast.actionSuccess", { action: actionText }), `Tx: ${hash.slice(0, 6)}...${hash.slice(-4)}`);
 			setTopAmount("");
 			setBottomAmount("");
+			setIsSubmitting(false);
 		},
 		onSwapError: ({ side }) => {
 			const actionText = side === "buy" ? t("Actions.buy") : t("Actions.sell");
 			showErrorToast(t("Toast.actionFailed", { action: actionText }));
+			setIsSubmitting(false);
 		},
 	});
 	useEffect(() => {
@@ -136,7 +139,7 @@ export default function SwapPage() {
 		? "h-[48px] bg-[#fff] text-[#000] mt-[16px]"
 		: "h-[48px] bg-[#36383B] text-[15px] text-[#868789] mt-[16px]";
 	const isButtonDisabled = address
-		? !canSwap || minAmountOut <= 0n || isApproving || isSwapping
+		? !canSwap || minAmountOut <= 0n || isApproving || isSwapping || isSubmitting
 		: false;
 
 	const handleAmountChange = (value: string, setter: (next: string) => void) => {
@@ -255,7 +258,7 @@ export default function SwapPage() {
 				radius="full"
 				fullWidth
 				className={buttonClassName}
-				isLoading={isApproving || isSwapping}
+				isLoading={isSubmitting || isApproving || isSwapping}
 				isDisabled={isButtonDisabled}
 				onPress={() => {
 					if (!address) {
@@ -266,6 +269,8 @@ export default function SwapPage() {
 						customToast({ title: t("Toast.balanceInsufficient"), type: "error" });
 						return;
 					}
+					if (isSubmitting) return;
+					setIsSubmitting(true);
 					if (tradeSide === "buy") {
 						handleBuy();
 					} else {
