@@ -34,6 +34,19 @@
     "Share": {
         "tokenShareText": "Check out {{name}} ({{symbol}})"
     },
+    "Preheat": {
+        "heroTitleLine1": "Bring the Birth of MEME",
+        "heroTitleLine2": "Back to Its",
+        "heroTitleHighlight": "起源",
+        "heroDesc": "The world’s first token graduation model integrating dual liquidity pools, driven by a POV (Proof of Volume) mining game mechanism to synchronize prices across pools and continuously amplify token growth momentum",
+        "comingSoon": "Coming soon",
+        "flywheelTab": "Flywheel Mechanism",
+        "gameTab": "Game Mechanism",
+        "flywheelTitle": "Flywheel mechanism",
+        "flywheelDesc": "Dual liquidity pools and incentives create a growth flywheel to sustain attention and liquidity.",
+        "gameTitle": "Game mechanism",
+        "gameDesc": "POV mining gamifies participation and forms a positive feedback loop between trading and mining."
+    },
     "Toast": {
         "actionSubmitted": "{{action}} submitted",
         "actionSuccess": "{{action}} successful",

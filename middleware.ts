@@ -64,6 +64,7 @@ export function middleware(request: NextRequest) {
     const country = request.headers.get("x-vercel-ip-country") || "";
     const restrictedCountries = process.env.NEXT_PUBLIC_RESTRICTED_COUNTRIES || "CN";
     const acceptLanguage = request.headers.get("accept-language") || "en";
+    const { pathname } = request.nextUrl;
 
     // 将受限国家字符串转换为数组进行精确匹配
     const restrictedCountriesArray = restrictedCountries.split(",").map((c) => c.trim());
@@ -77,9 +78,13 @@ export function middleware(request: NextRequest) {
         });
     }
 
+    if (!pathname.startsWith("/preheat")) {
+        return NextResponse.redirect(new URL("/preheat", request.url));
+    }
+
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: ["/((?!_next/static|_next/image|favicon.ico|images).*)"],
+    matcher: ["/((?!_next/static|_next/image|favicon.ico|images|fonts).*)"],
 };

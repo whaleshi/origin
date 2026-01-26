@@ -23,7 +23,8 @@ import "@/i18n"
 import { HeadWeb } from "@/layouts/head";
 export default function App({ Component, pageProps }: AppProps) {
 	const router = useRouter();
-	const hideFooter = router.pathname === "/token/[addr]" || router.pathname === '/create' || router.pathname === '/search';
+	const isPreheatPage = router.pathname === "/preheat";
+	const hideFooter = isPreheatPage || router.pathname === "/token/[addr]" || router.pathname === '/create' || router.pathname === '/search';
 	const [isMounted, setIsMounted] = useState(false);
 	const { i18n } = useTranslation();
 	const progressRef = useRef<{ timer: ReturnType<typeof setTimeout> | null; started: boolean }>({
@@ -94,6 +95,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
 	// 预加载关键页面
 	useEffect(() => {
+		if (isPreheatPage) return;
 		// 延迟预加载，避免影响初始页面加载性能
 		const timer = setTimeout(async () => {
 			try {
@@ -135,9 +137,9 @@ export default function App({ Component, pageProps }: AppProps) {
 										/>
 										<NextThemesProvider attribute="class" defaultTheme="dark">
 											<div className="relative flex flex-col h-screen bg-[#0D0F13] page-transition">
-												<Navbar />
+												{!isPreheatPage && <Navbar />}
 												<main
-													className={`mx-auto w-full flex-grow pt-[56px] md:pt-[64px] ${hideFooter ? "pb-0" : "pb-[52px]"
+													className={`mx-auto w-full flex-grow ${isPreheatPage ? "pt-0" : "pt-[56px] md:pt-[64px]"} ${hideFooter ? "pb-0" : "pb-[52px]"
 														} md:pb-0`}
 												>
 													<Component {...pageProps} />

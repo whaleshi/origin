@@ -31,9 +31,24 @@
         "selectToken": "选择代币",
         "enterAmount": "输入金额"
     },
-    "Share": {
-        "tokenShareText": "看看 {{name}} ({{symbol}})"
-    },
+  "Share": {
+    "tokenShareText": "看看 {{name}} ({{symbol}})"
+  },
+  "Preheat": {
+    "title": "预热中",
+    "description": "我们正在准备上线，敬请期待。",
+    "heroTitleLine1": "让 MEME 的诞生",
+    "heroTitleLine2": "回归",
+    "heroTitleHighlight": "起源",
+    "heroDesc": "全球首创代币毕业接入双流动性池，在 POV（Proof of Volume）挖矿游戏机制驱动双池价格联动，持续放大代币增长动能",
+    "comingSoon": "即将上线",
+    "flywheelTab": "飞轮机制",
+    "gameTab": "游戏机制",
+    "flywheelTitle": "飞轮机制",
+    "flywheelDesc": "双流动性池联动与激励反馈形成增长飞轮，持续放大代币关注与流动性。",
+    "gameTitle": "游戏机制",
+    "gameDesc": "基于 POV 挖矿的游戏化激励，让交易与挖矿形成正向循环。"
+  },
     "Toast": {
         "actionSubmitted": "{{action}}已发起",
         "actionSuccess": "{{action}}成功",
