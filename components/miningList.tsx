@@ -104,7 +104,7 @@ export const MiningList = ({ coinInfo }: MiningListProps) => {
 			return "0";
 		}
 		const normalReward = row?.normal_reward_amount ?? '0';
-		const motherReward = row?.mother_reward_amount ?? '0';
+		const motherReward = row?.mother_reward_enabled === 1 ? (row?.mother_reward_amount ?? '0') : '0';
 		return BigNumber(ethers.formatUnits(BigInt(normalReward), 8))
 			.plus(ethers.formatUnits(BigInt(motherReward), 8))
 			.dp(2, BigNumber.ROUND_DOWN)
