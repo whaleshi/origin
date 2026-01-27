@@ -78,9 +78,9 @@ export function middleware(request: NextRequest) {
         });
     }
 
-    if (!pathname.startsWith("/preheat")) {
-        return NextResponse.redirect(new URL("/preheat", request.url));
-    }
+    // if (!pathname.startsWith("/preheat")) {
+    //     return NextResponse.redirect(new URL("/preheat", request.url));
+    // }
 
     return NextResponse.next();
 }
